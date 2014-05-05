@@ -141,7 +141,7 @@ void ColumnSpanSet::executeColumnAction(ScDocument& rDoc, ColumnAction& ac) cons
             if (!rTab[nCol])
                 continue;
 
-            ScTable* pTab = rDoc.FetchTable(nTab);
+            ScTableSheet* pTab = rDoc.FetchTable(nTab);
             if (!pTab)
                 continue;
 

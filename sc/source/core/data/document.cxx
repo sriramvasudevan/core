@@ -116,7 +116,7 @@ using ::std::set;
 
 namespace {
 
-std::pair<SCTAB,SCTAB> getMarkedTableRange(const std::vector<ScTable*>& rTables, const ScMarkData& rMark)
+std::pair<SCTAB,SCTAB> getMarkedTableRange(const std::vector<ScTableSheet*>& rTables, const ScMarkData& rMark)
 {
     SCTAB nTabStart = MAXTAB;
     SCTAB nTabEnd = 0;
@@ -168,13 +168,13 @@ void ScDocument::MakeTable( SCTAB nTab,bool _bNeedsNameCheck )
             CreateValidTabName( aString );  // no doubles
         if (nTab < static_cast<SCTAB>(maTabs.size()))
         {
-            maTabs[nTab] = new ScTable(this, nTab, aString);
+            maTabs[nTab] = new ScTableSheet(this, nTab, aString);
         }
         else
         {
             while(nTab > static_cast<SCTAB>(maTabs.size()))
                 maTabs.push_back(NULL);
-            maTabs.push_back( new ScTable(this, nTab, aString) );
+            maTabs.push_back( new ScTableSheet(this, nTab, aString) );
         }
         maTabs[nTab]->SetLoadingMedium(bLoadingMedium);
     }
@@ -260,7 +260,7 @@ std::vector<OUString> ScDocument::GetAllTableNames() const
     for (; it != itEnd; ++it)
     {
         OUString aName;
-        const ScTable& rTab = **it;
+        const ScTableSheet& rTab = **it;
         rTab.GetName(aName);
         aNames.push_back(aName);
     }
@@ -435,7 +435,7 @@ void ScDocument::AppendTabOnLoad(const OUString& rName)
 
     OUString aName = rName;
     CreateValidTabName(aName);
-    maTabs.push_back( new ScTable(this, nTabCount, aName) );
+    maTabs.push_back( new ScTableSheet(this, nTabCount, aName) );
 }
 
 void ScDocument::SetTabNameOnLoad(SCTAB nTab, const OUString& rName)
@@ -454,7 +454,7 @@ void ScDocument::InvalidateStreamOnSave()
     TableContainer::iterator it = maTabs.begin(), itEnd = maTabs.end();
     for (; it != itEnd; ++it)
     {
-        ScTable* pTab = *it;
+        ScTableSheet* pTab = *it;
         if (pTab)
             pTab->SetStreamValid(false);
     }
@@ -472,7 +472,7 @@ bool ScDocument::InsertTab(
         if (nPos == SC_TAB_APPEND || nPos >= nTabCount)
         {
             nPos = maTabs.size();
-            maTabs.push_back( new ScTable(this, nTabCount, rName) );
+            maTabs.push_back( new ScTableSheet(this, nTabCount, rName) );
             if ( bExternalDocument )
                 maTabs[nTabCount]->SetVisible( false );
         }
@@ -509,7 +509,7 @@ bool ScDocument::InsertTab(
                     maTabs[i] = maTabs[i - 1];
                 }
 
-                maTabs[nPos] = new ScTable(this, nPos, rName);
+                maTabs[nPos] = new ScTableSheet(this, nPos, rName);
 
                 // UpdateBroadcastAreas must be called between UpdateInsertTab,
                 // which ends listening, and StartAllListeners, to not modify
@@ -565,7 +565,7 @@ bool ScDocument::InsertTabs( SCTAB nPos, const std::vector<OUString>& rNames,
         {
             for ( SCTAB i = 0; i < nNewSheets; ++i )
             {
-                maTabs.push_back( new ScTable(this, nTabCount + i, rNames.at(i)) );
+                maTabs.push_back( new ScTableSheet(this, nTabCount + i, rNames.at(i)) );
                 if ( bExternalDocument )
                     maTabs[nTabCount+i]->SetVisible( false );
             }
@@ -599,7 +599,7 @@ bool ScDocument::InsertTabs( SCTAB nPos, const std::vector<OUString>& rNames,
                 maTabs.insert(it+nPos,nNewSheets, NULL);
                 for (SCTAB i = 0; i < nNewSheets; ++i)
                 {
-                    maTabs[nPos + i] = new ScTable(this, nPos + i, rNames.at(i));
+                    maTabs[nPos + i] = new ScTableSheet(this, nPos + i, rNames.at(i));
                 }
 
                 // UpdateBroadcastAreas must be called between UpdateInsertTab,
@@ -785,7 +785,7 @@ bool ScDocument::DeleteTabs( SCTAB nTab, SCTAB nSheets )
 
                 TableContainer::iterator it = maTabs.begin() + nTab;
                 TableContainer::iterator itEnd = it + nSheets;
-                std::for_each(it, itEnd, ScDeleteObjectByPtr<ScTable>());
+                std::for_each(it, itEnd, ScDeleteObjectByPtr<ScTableSheet>());
                 maTabs.erase(it, itEnd);
                 // UpdateBroadcastAreas must be called between UpdateDeleteTab,
                 // which ends listening, and StartAllListeners, to not modify
@@ -1054,7 +1054,7 @@ bool ScDocument::ShrinkToUsedDataArea( bool& o_bShrunk, SCTAB nTab, SCCOL& rStar
 
 SCROW ScDocument::GetLastDataRow( SCTAB nTab, SCCOL nCol1, SCCOL nCol2, SCROW nLastRow ) const
 {
-    const ScTable* pTab = FetchTable(nTab);
+    const ScTableSheet* pTab = FetchTable(nTab);
     if (!pTab)
         return -1;
 
@@ -1174,27 +1174,27 @@ bool ScDocument::CanInsertRow( const ScRange& rRange ) const
 
 namespace {
 
-struct StartNeededListenersHandler : std::unary_function<ScTable*, void>
+struct StartNeededListenersHandler : std::unary_function<ScTableSheet*, void>
 {
-    void operator() (ScTable* p)
+    void operator() (ScTableSheet* p)
     {
         if (p)
             p->StartNeededListeners();
     }
 };
 
-struct SetDirtyIfPostponedHandler : std::unary_function<ScTable*, void>
+struct SetDirtyIfPostponedHandler : std::unary_function<ScTableSheet*, void>
 {
-    void operator() (ScTable* p)
+    void operator() (ScTableSheet* p)
     {
         if (p)
             p->SetDirtyIfPostponed();
     }
 };
 
-struct BroadcastRecalcOnRefMoveHandler : std::unary_function<ScTable*, void>
+struct BroadcastRecalcOnRefMoveHandler : std::unary_function<ScTableSheet*, void>
 {
-    void operator() (ScTable* p)
+    void operator() (ScTableSheet* p)
     {
         if (p)
             p->BroadcastRecalcOnRefMove();
@@ -1838,7 +1838,7 @@ void ScDocument::InitUndoSelected( ScDocument* pSrcDoc, const ScMarkData& rTabSe
         for (SCTAB nTab = 0; nTab <= rTabSelection.GetLastSelected(); nTab++)
             if ( rTabSelection.GetTableSelect( nTab ) )
             {
-                ScTable* pTable = new ScTable(this, nTab, aString, bColInfo, bRowInfo);
+                ScTableSheet* pTable = new ScTableSheet(this, nTab, aString, bColInfo, bRowInfo);
                 if (nTab < static_cast<SCTAB>(maTabs.size()))
                     maTabs[nTab] = pTable;
                 else
@@ -1878,7 +1878,7 @@ void ScDocument::InitUndo( ScDocument* pSrcDoc, SCTAB nTab1, SCTAB nTab2,
             maTabs.resize(nTab2 + 1, NULL);
         for (SCTAB nTab = nTab1; nTab <= nTab2; nTab++)
         {
-            ScTable* pTable = new ScTable(this, nTab, aString, bColInfo, bRowInfo);
+            ScTableSheet* pTable = new ScTableSheet(this, nTab, aString, bColInfo, bRowInfo);
             maTabs[nTab] = pTable;
         }
     }
@@ -1901,7 +1901,7 @@ void ScDocument::AddUndoTab( SCTAB nTab1, SCTAB nTab2, bool bColInfo, bool bRowI
         for (SCTAB nTab = nTab1; nTab <= nTab2; nTab++)
             if (!maTabs[nTab])
             {
-                maTabs[nTab] = new ScTable(this, nTab, aString, bColInfo, bRowInfo);
+                maTabs[nTab] = new ScTableSheet(this, nTab, aString, bColInfo, bRowInfo);
             }
 
     }
@@ -2139,8 +2139,8 @@ void ScDocument::CopyStaticToDocument(const ScRange& rSrcRange, SCTAB nDestTab, 
     if (!pDestDoc)
         return;
 
-    ScTable* pSrcTab = rSrcRange.aStart.Tab() < static_cast<SCTAB>(maTabs.size()) ? maTabs[rSrcRange.aStart.Tab()] : NULL;
-    ScTable* pDestTab = nDestTab < static_cast<SCTAB>(pDestDoc->maTabs.size()) ? pDestDoc->maTabs[nDestTab] : NULL;
+    ScTableSheet* pSrcTab = rSrcRange.aStart.Tab() < static_cast<SCTAB>(maTabs.size()) ? maTabs[rSrcRange.aStart.Tab()] : NULL;
+    ScTableSheet* pDestTab = nDestTab < static_cast<SCTAB>(pDestDoc->maTabs.size()) ? pDestDoc->maTabs[nDestTab] : NULL;
 
     if (!pSrcTab || !pDestTab)
         return;
@@ -2154,8 +2154,8 @@ void ScDocument::CopyCellToDocument( const ScAddress& rSrcPos, const ScAddress& 
     if (!TableExists(rSrcPos.Tab()) || !rDestDoc.TableExists(rDestPos.Tab()))
         return;
 
-    ScTable& rSrcTab = *maTabs[rSrcPos.Tab()];
-    ScTable& rDestTab = *rDestDoc.maTabs[rDestPos.Tab()];
+    ScTableSheet& rSrcTab = *maTabs[rSrcPos.Tab()];
+    ScTableSheet& rDestTab = *rDestDoc.maTabs[rDestPos.Tab()];
 
     rSrcTab.CopyCellToDocument(rSrcPos.Col(), rSrcPos.Row(), rDestPos.Col(), rDestPos.Row(), rDestTab);
 }
@@ -2341,7 +2341,7 @@ void ScDocument::ClearFormulaContext()
 
 SvtBroadcaster* ScDocument::GetBroadcaster( const ScAddress& rPos )
 {
-    ScTable* pTab = FetchTable(rPos.Tab());
+    ScTableSheet* pTab = FetchTable(rPos.Tab());
     if (!pTab)
         return NULL;
 
@@ -2350,7 +2350,7 @@ SvtBroadcaster* ScDocument::GetBroadcaster( const ScAddress& rPos )
 
 const SvtBroadcaster* ScDocument::GetBroadcaster( const ScAddress& rPos ) const
 {
-    const ScTable* pTab = FetchTable(rPos.Tab());
+    const ScTableSheet* pTab = FetchTable(rPos.Tab());
     if (!pTab)
         return NULL;
 
@@ -2359,7 +2359,7 @@ const SvtBroadcaster* ScDocument::GetBroadcaster( const ScAddress& rPos ) const
 
 void ScDocument::DeleteBroadcasters( sc::ColumnBlockPosition& rBlockPos, const ScAddress& rTopPos, SCROW nLength )
 {
-    ScTable* pTab = FetchTable(rTopPos.Tab());
+    ScTableSheet* pTab = FetchTable(rTopPos.Tab());
     if (!pTab || nLength <= 0)
         return;
 
@@ -2368,7 +2368,7 @@ void ScDocument::DeleteBroadcasters( sc::ColumnBlockPosition& rBlockPos, const S
 
 bool ScDocument::HasBroadcaster( SCTAB nTab, SCCOL nCol ) const
 {
-    const ScTable* pTab = FetchTable(nTab);
+    const ScTableSheet* pTab = FetchTable(nTab);
     if (!pTab)
         return false;
 
@@ -2378,7 +2378,7 @@ bool ScDocument::HasBroadcaster( SCTAB nTab, SCCOL nCol ) const
 #if DEBUG_COLUMN_STORAGE
 void ScDocument::DumpFormulaGroups( SCTAB nTab, SCCOL nCol ) const
 {
-    const ScTable* pTab = FetchTable(nTab);
+    const ScTableSheet* pTab = FetchTable(nTab);
     if (!pTab)
         return;
 
@@ -2391,7 +2391,7 @@ bool ScDocument::TableExists( SCTAB nTab ) const
     return ValidTab(nTab) && static_cast<size_t>(nTab) < maTabs.size() && maTabs[nTab];
 }
 
-ScTable* ScDocument::FetchTable( SCTAB nTab )
+ScTableSheet* ScDocument::FetchTable( SCTAB nTab )
 {
     if (!TableExists(nTab))
         return NULL;
@@ -2399,7 +2399,7 @@ ScTable* ScDocument::FetchTable( SCTAB nTab )
     return maTabs[nTab];
 }
 
-const ScTable* ScDocument::FetchTable( SCTAB nTab ) const
+const ScTableSheet* ScDocument::FetchTable( SCTAB nTab ) const
 {
     if (!TableExists(nTab))
         return NULL;
@@ -3016,8 +3016,8 @@ void ScDocument::MixDocument( const ScRange& rRange, sal_uInt16 nFunction, bool 
     SCTAB nMinSizeBothTabs = static_cast<SCTAB>(std::min(maTabs.size(), pSrcDoc->maTabs.size()));
     for (SCTAB i = nTab1; i <= nTab2 && i < nMinSizeBothTabs; i++)
     {
-        ScTable* pTab = FetchTable(i);
-        const ScTable* pSrcTab = pSrcDoc->FetchTable(i);
+        ScTableSheet* pTab = FetchTable(i);
+        const ScTableSheet* pSrcTab = pSrcDoc->FetchTable(i);
         if (!pTab || !pSrcTab)
             continue;
 
@@ -3201,7 +3201,7 @@ void ScDocument::SetEditText( const ScAddress& rPos, const OUString& rStr )
 
 SCROW ScDocument::GetFirstEditTextRow( const ScRange& rRange ) const
 {
-    const ScTable* pTab = FetchTable(rRange.aStart.Tab());
+    const ScTableSheet* pTab = FetchTable(rRange.aStart.Tab());
     if (!pTab)
         return -1;
 
@@ -3626,7 +3626,7 @@ void ScDocument::InterpretDirtyCells( const ScRangeList& rRanges )
         const ScRange& rRange = *rRanges[nPos];
         for (SCTAB nTab = rRange.aStart.Tab(); nTab <= rRange.aEnd.Tab(); ++nTab)
         {
-            ScTable* pTab = FetchTable(nTab);
+            ScTableSheet* pTab = FetchTable(nTab);
             if (!pTab)
                 return;
 
@@ -3725,7 +3725,7 @@ bool ScDocument::CompileErrorCells(sal_uInt16 nErrCode)
     TableContainer::iterator it = maTabs.begin(), itEnd = maTabs.end();
     for (; it != itEnd; ++it)
     {
-        ScTable* pTab = *it;
+        ScTableSheet* pTab = *it;
         if (!pTab)
             continue;
 
@@ -3985,7 +3985,7 @@ long ScDocument::GetNeededSize( SCCOL nCol, SCROW nRow, SCTAB nTab,
 
 bool ScDocument::SetOptimalHeight( sc::RowHeightContext& rCxt, SCROW nStartRow, SCROW nEndRow, SCTAB nTab )
 {
-    ScTable* pTab = FetchTable(nTab);
+    ScTableSheet* pTab = FetchTable(nTab);
     if (!pTab)
         return false;
 
@@ -6040,7 +6040,7 @@ void ScDocument::MarkSubTotalCells( sc::ColumnSpanSet& rSet, const ScRange& rRan
 {
     for (SCTAB nTab = rRange.aStart.Tab(); nTab <= rRange.aEnd.Tab(); ++nTab)
     {
-        const ScTable* pTab = FetchTable(nTab);
+        const ScTableSheet* pTab = FetchTable(nTab);
         if (!pTab)
             continue;
 
@@ -6166,7 +6166,7 @@ bool ScDocument::HasTabNotes(SCTAB nTab)
 
 ScPostIt* ScDocument::ReleaseNote(const ScAddress& rPos)
 {
-    ScTable* pTab = FetchTable(rPos.Tab());
+    ScTableSheet* pTab = FetchTable(rPos.Tab());
     if (!pTab)
         return NULL;
 
@@ -6189,7 +6189,7 @@ ScPostIt* ScDocument::CreateNote(const ScAddress& rPos)
 
 size_t ScDocument::GetNoteCount( SCTAB nTab, SCCOL nCol ) const
 {
-    const ScTable* pTab = FetchTable(nTab);
+    const ScTableSheet* pTab = FetchTable(nTab);
     if (!pTab)
         return 0;
 
@@ -6201,7 +6201,7 @@ void ScDocument::CreateAllNoteCaptions()
     TableContainer::iterator it = maTabs.begin(), itEnd = maTabs.end();
     for (; it != itEnd; ++it)
     {
-        ScTable* p = *it;
+        ScTableSheet* p = *it;
         if (p)
             p->CreateAllNoteCaptions();
     }
@@ -6216,7 +6216,7 @@ void ScDocument::ForgetNoteCaptions( const ScRangeList& rRanges )
         const ScAddress& e = p->aEnd;
         for (SCTAB nTab = s.Tab(); nTab <= e.Tab(); ++nTab)
         {
-            ScTable* pTab = FetchTable(nTab);
+            ScTableSheet* pTab = FetchTable(nTab);
             if (!pTab)
                 continue;
 
@@ -6256,7 +6256,7 @@ ScAddress ScDocument::GetNotePosition( size_t nIndex ) const
 
 SCROW ScDocument::GetNotePosition( SCTAB nTab, SCCOL nCol, size_t nIndex ) const
 {
-    const ScTable* pTab = FetchTable(nTab);
+    const ScTableSheet* pTab = FetchTable(nTab);
     if (!pTab)
         return -1;
 
@@ -6267,7 +6267,7 @@ void ScDocument::GetAllNoteEntries( std::vector<sc::NoteEntry>& rNotes ) const
 {
     for (size_t nTab = 0; nTab < maTabs.size(); ++nTab)
     {
-        const ScTable* pTab = maTabs[nTab];
+        const ScTableSheet* pTab = maTabs[nTab];
         if (!pTab)
             continue;
 

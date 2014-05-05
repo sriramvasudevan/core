@@ -135,7 +135,7 @@ class ScColumn
     bool mbDirtyGroups;     /// formula groups are dirty.
 
 friend class ScDocument;                    // for FillInfo
-friend class ScTable;
+friend class ScTableSheet;
 friend class ScValueIterator;
 friend class ScHorizontalValueIterator;
 friend class ScDBQueryDataIterator;

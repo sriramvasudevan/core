@@ -46,6 +46,7 @@
 #include "patattr.hxx"
 #include "formulacell.hxx"
 #include "table.hxx"
+#include "sheet.hxx"
 #include "globstr.hrc"
 #include "global.hxx"
 #include "document.hxx"
@@ -187,7 +188,29 @@ void setSuffixCell(
 
 }
 
-void ScTable::FillAnalyse( SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2,
+namespace {
+
+bool HiddenRowColumn(ScTableSheet* pTable, SCCOLROW nRowColumn, bool bVertical, SCCOLROW& rLastPos)
+{
+    bool bHidden = false;
+    if(bVertical)
+    {
+        SCROW nLast;
+        bHidden = pTable->RowHidden(nRowColumn, NULL, &nLast);
+        rLastPos = nLast;
+    }
+    else
+    {
+        SCCOL nLast;
+        bHidden = pTable->ColHidden(static_cast<SCCOL>(nRowColumn), NULL, &nLast);
+        rLastPos = nLast;
+    }
+    return bHidden;
+}
+
+}
+
+void ScTableSheet::FillAnalyse( SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2,
                             FillCmd& rCmd, FillDateCmd& rDateCmd,
                             double& rInc, sal_uInt16& rMinDigits,
                             ScUserListData*& rListData, sal_uInt16& rListIndex)
@@ -428,7 +451,7 @@ void ScTable::FillAnalyse( SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2,
     }
 }
 
-void ScTable::FillFormula(
+void ScTableSheet::FillFormula(
     ScFormulaCell* pSrcCell, SCCOL nDestCol, SCROW nDestRow, bool bLast )
 {
 
@@ -471,7 +494,7 @@ void ScTable::FillFormula(
 
 }
 
-void ScTable::FillAuto( SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2,
+void ScTableSheet::FillAuto( SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2,
                         sal_uLong nFillCount, FillDir eFillDir, ScProgress* pProgress )
 {
     if ( (nFillCount == 0) || !ValidColRow(nCol1, nRow1) || !ValidColRow(nCol2, nRow2) )
@@ -771,7 +794,7 @@ void ScTable::FillAuto( SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2,
     }
 }
 
-OUString ScTable::GetAutoFillPreview( const ScRange& rSource, SCCOL nEndX, SCROW nEndY )
+OUString ScTableSheet::GetAutoFillPreview( const ScRange& rSource, SCCOL nEndX, SCROW nEndY )
 {
     OUString aValue;
 
@@ -1008,7 +1031,7 @@ OUString ScTable::GetAutoFillPreview( const ScRange& rSource, SCCOL nEndX, SCROW
     return aValue;
 }
 
-void ScTable::IncDate(double& rVal, sal_uInt16& nDayOfMonth, double nStep, FillDateCmd eCmd)
+void ScTableSheet::IncDate(double& rVal, sal_uInt16& nDayOfMonth, double nStep, FillDateCmd eCmd)
 {
     if (eCmd == FILL_DAY)
     {
@@ -1107,29 +1130,7 @@ void ScTable::IncDate(double& rVal, sal_uInt16& nDayOfMonth, double nStep, FillD
     rVal = aDate - aNullDate;
 }
 
-namespace {
-
-bool HiddenRowColumn(ScTable* pTable, SCCOLROW nRowColumn, bool bVertical, SCCOLROW& rLastPos)
-{
-    bool bHidden = false;
-    if(bVertical)
-    {
-        SCROW nLast;
-        bHidden = pTable->RowHidden(nRowColumn, NULL, &nLast);
-        rLastPos = nLast;
-    }
-    else
-    {
-        SCCOL nLast;
-        bHidden = pTable->ColHidden(static_cast<SCCOL>(nRowColumn), NULL, &nLast);
-        rLastPos = nLast;
-    }
-    return bHidden;
-}
-
-}
-
-void ScTable::FillFormulaVertical(
+void ScTableSheet::FillFormulaVertical(
     const ScFormulaCell& rSrcCell,
     SCCOLROW& rInner, SCCOL nCol, SCROW nRow1, SCROW nRow2,
     ScProgress* pProgress, sal_uLong& rProgress )
@@ -1174,7 +1175,7 @@ void ScTable::FillFormulaVertical(
         pProgress->SetStateOnPercent(rProgress);
 }
 
-void ScTable::FillSeriesSimple(
+void ScTableSheet::FillSeriesSimple(
     ScCellValue& rSrcCell, SCCOLROW& rInner, SCCOLROW nIMin, SCCOLROW nIMax,
     SCCOLROW& rCol, SCCOLROW& rRow, bool bVertical, ScProgress* pProgress, sal_uLong& rProgress )
 {
@@ -1254,7 +1255,7 @@ void ScTable::FillSeriesSimple(
     }
 }
 
-void ScTable::FillAutoSimple(
+void ScTableSheet::FillAutoSimple(
     SCCOLROW nISrcStart, SCCOLROW nISrcEnd, SCCOLROW nIStart, SCCOLROW nIEnd,
     SCCOLROW& rInner, SCCOLROW& rCol, SCCOLROW& rRow, sal_uLong nActFormCnt,
     sal_uLong nMaxFormCnt, bool bHasFiltered, bool bVertical, bool bPositive,
@@ -1421,7 +1422,7 @@ void ScTable::FillAutoSimple(
         pProgress->SetStateOnPercent( rProgress );
 }
 
-void ScTable::FillSeries( SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2,
+void ScTableSheet::FillSeries( SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2,
                     sal_uLong nFillCount, FillDir eFillDir, FillCmd eFillCmd, FillDateCmd eFillDateCmd,
                     double nStepValue, double nMaxValue, sal_uInt16 nArgMinDigits,
                     bool bAttribs, ScProgress* pProgress )
@@ -1803,7 +1804,7 @@ void ScTable::FillSeries( SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2,
     }
 }
 
-void ScTable::Fill( SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2,
+void ScTableSheet::Fill( SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2,
                     sal_uLong nFillCount, FillDir eFillDir, FillCmd eFillCmd, FillDateCmd eFillDateCmd,
                     double nStepValue, double nMaxValue, ScProgress* pProgress)
 {
@@ -1815,7 +1816,7 @@ void ScTable::Fill( SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2,
 }
 
 
-void ScTable::AutoFormatArea(SCCOL nStartCol, SCROW nStartRow, SCCOL nEndCol, SCROW nEndRow,
+void ScTableSheet::AutoFormatArea(SCCOL nStartCol, SCROW nStartRow, SCCOL nEndCol, SCROW nEndRow,
                                 const ScPatternAttr& rAttr, sal_uInt16 nFormatNo)
 {
     ScAutoFormat& rFormat = *ScGlobal::GetOrCreateAutoFormat();
@@ -1826,7 +1827,7 @@ void ScTable::AutoFormatArea(SCCOL nStartCol, SCROW nStartRow, SCCOL nEndCol, SC
     }
 }
 
-void ScTable::AutoFormat( SCCOL nStartCol, SCROW nStartRow, SCCOL nEndCol, SCROW nEndRow,
+void ScTableSheet::AutoFormat( SCCOL nStartCol, SCROW nStartRow, SCCOL nEndCol, SCROW nEndRow,
                             sal_uInt16 nFormatNo )
 {
     if (ValidColRow(nStartCol, nStartRow) && ValidColRow(nEndCol, nEndRow))
@@ -1965,7 +1966,7 @@ void ScTable::AutoFormat( SCCOL nStartCol, SCROW nStartRow, SCCOL nEndCol, SCROW
     } // if ValidColRow
 }
 
-void ScTable::GetAutoFormatAttr(SCCOL nCol, SCROW nRow, sal_uInt16 nIndex, ScAutoFormatData& rData)
+void ScTableSheet::GetAutoFormatAttr(SCCOL nCol, SCROW nRow, sal_uInt16 nIndex, ScAutoFormatData& rData)
 {
     sal_uInt32 nFormatIndex = GetNumberFormat( nCol, nRow );
     ScNumFormatAbbrev   aNumFormat( nFormatIndex, *pDocument->GetFormatTable() );
@@ -1978,7 +1979,7 @@ void ScTable::GetAutoFormatAttr(SCCOL nCol, SCROW nRow, sal_uInt16 nIndex, ScAut
 #define LF_BOTTOM       8
 #define LF_ALL          (LF_LEFT | LF_TOP | LF_RIGHT | LF_BOTTOM)
 
-void ScTable::GetAutoFormatFrame(SCCOL nCol, SCROW nRow, sal_uInt16 nFlags, sal_uInt16 nIndex, ScAutoFormatData& rData)
+void ScTableSheet::GetAutoFormatFrame(SCCOL nCol, SCROW nRow, sal_uInt16 nFlags, sal_uInt16 nIndex, ScAutoFormatData& rData)
 {
     const SvxBoxItem* pTheBox = (SvxBoxItem*)GetAttr(nCol, nRow, ATTR_BORDER);
     const SvxBoxItem* pLeftBox = (SvxBoxItem*)GetAttr(nCol - 1, nRow, ATTR_BORDER);
@@ -2038,7 +2039,7 @@ void ScTable::GetAutoFormatFrame(SCCOL nCol, SCROW nRow, sal_uInt16 nFlags, sal_
     rData.PutItem( nIndex, aBox );
 }
 
-void ScTable::GetAutoFormatData(SCCOL nStartCol, SCROW nStartRow, SCCOL nEndCol, SCROW nEndRow, ScAutoFormatData& rData)
+void ScTableSheet::GetAutoFormatData(SCCOL nStartCol, SCROW nStartRow, SCCOL nEndCol, SCROW nEndRow, ScAutoFormatData& rData)
 {
     if (ValidColRow(nStartCol, nStartRow) && ValidColRow(nEndCol, nEndRow))
     {
@@ -2110,19 +2111,19 @@ void ScTable::GetAutoFormatData(SCCOL nStartCol, SCROW nStartRow, SCCOL nEndCol,
     }
 }
 
-void ScTable::SetError( SCCOL nCol, SCROW nRow, sal_uInt16 nError)
+void ScTableSheet::SetError( SCCOL nCol, SCROW nRow, sal_uInt16 nError)
 {
     if (ValidColRow(nCol, nRow))
         aCol[nCol].SetError( nRow, nError );
 }
 
-void ScTable::UpdateInsertTabAbs(SCTAB nTable)
+void ScTableSheet::UpdateInsertTabAbs(SCTAB nTable)
 {
     for (SCCOL i=0; i <= MAXCOL; i++)
         aCol[i].UpdateInsertTabAbs(nTable);
 }
 
-bool ScTable::GetNextSpellingCell(SCCOL& rCol, SCROW& rRow, bool bInSel,
+bool ScTableSheet::GetNextSpellingCell(SCCOL& rCol, SCROW& rRow, bool bInSel,
                                     const ScMarkData& rMark) const
 {
     if (rRow == MAXROW+2)                       // end of table
@@ -2164,7 +2165,7 @@ bool ScTable::GetNextSpellingCell(SCCOL& rCol, SCROW& rRow, bool bInSel,
     return false;
 }
 
-bool ScTable::TestTabRefAbs(SCTAB nTable) const
+bool ScTableSheet::TestTabRefAbs(SCTAB nTable) const
 {
     for (SCCOL i=0; i <= MAXCOL; i++)
         if (aCol[i].TestTabRefAbs(nTable))
@@ -2172,31 +2173,31 @@ bool ScTable::TestTabRefAbs(SCTAB nTable) const
     return false;
 }
 
-void ScTable::CompileDBFormula( sc::CompileFormulaContext& rCxt )
+void ScTableSheet::CompileDBFormula( sc::CompileFormulaContext& rCxt )
 {
     for (SCCOL i = 0; i <= MAXCOL; ++i)
         aCol[i].CompileDBFormula(rCxt);
 }
 
-void ScTable::CompileDBFormula( sc::CompileFormulaContext& rCxt, bool bCreateFormulaString )
+void ScTableSheet::CompileDBFormula( sc::CompileFormulaContext& rCxt, bool bCreateFormulaString )
 {
     for (SCCOL i = 0; i <= MAXCOL; ++i)
         aCol[i].CompileDBFormula(rCxt, bCreateFormulaString);
 }
 
-void ScTable::CompileNameFormula( sc::CompileFormulaContext& rCxt, bool bCreateFormulaString )
+void ScTableSheet::CompileNameFormula( sc::CompileFormulaContext& rCxt, bool bCreateFormulaString )
 {
     for (SCCOL i = 0; i <= MAXCOL; ++i)
         aCol[i].CompileNameFormula(rCxt, bCreateFormulaString);
 }
 
-void ScTable::CompileColRowNameFormula( sc::CompileFormulaContext& rCxt )
+void ScTableSheet::CompileColRowNameFormula( sc::CompileFormulaContext& rCxt )
 {
     for (SCCOL i = 0; i <= MAXCOL; ++i)
         aCol[i].CompileColRowNameFormula(rCxt);
 }
 
-SCSIZE ScTable::GetPatternCount( SCCOL nCol ) const
+SCSIZE ScTableSheet::GetPatternCount( SCCOL nCol ) const
 {
     if( ValidCol( nCol ) )
         return aCol[nCol].GetPatternCount();
@@ -2204,7 +2205,7 @@ SCSIZE ScTable::GetPatternCount( SCCOL nCol ) const
         return 0;
 }
 
-SCSIZE ScTable::GetPatternCount( SCCOL nCol, SCROW nRow1, SCROW nRow2 ) const
+SCSIZE ScTableSheet::GetPatternCount( SCCOL nCol, SCROW nRow1, SCROW nRow2 ) const
 {
     if( ValidCol( nCol ) && ValidRow( nRow1 ) && ValidRow( nRow2 ) )
         return aCol[nCol].GetPatternCount( nRow1, nRow2 );
@@ -2212,7 +2213,7 @@ SCSIZE ScTable::GetPatternCount( SCCOL nCol, SCROW nRow1, SCROW nRow2 ) const
         return 0;
 }
 
-bool ScTable::ReservePatternCount( SCCOL nCol, SCSIZE nReserve )
+bool ScTableSheet::ReservePatternCount( SCCOL nCol, SCSIZE nReserve )
 {
     if( ValidCol( nCol ) )
         return aCol[nCol].ReservePatternCount( nReserve );

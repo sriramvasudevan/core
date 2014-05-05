@@ -29,6 +29,7 @@
 #include <unotools/transliterationwrapper.hxx>
 
 #include "table.hxx"
+#include "sheet.hxx"
 #include "scitems.hxx"
 #include "attrib.hxx"
 #include "formulacell.hxx"
@@ -212,7 +213,6 @@ IMPL_FIXEDMEMPOOL_NEWDEL( ScSortInfo )
 
 // END OF STATIC DATA -----------------------------------------------------
 
-
 class ScSortInfoArray
 {
 private:
@@ -266,7 +266,7 @@ public:
     SCSIZE      GetCount() const { return nCount; }
 };
 
-ScSortInfoArray* ScTable::CreateSortInfoArray( SCCOLROW nInd1, SCCOLROW nInd2 )
+ScSortInfoArray* ScTableSheet::CreateSortInfoArray( SCCOLROW nInd1, SCCOLROW nInd2 )
 {
     sal_uInt16 nUsedSorts = 1;
     while ( nUsedSorts < aSortParam.GetSortKeyCount() && aSortParam.maKeyState[nUsedSorts].bDoSort )
@@ -304,14 +304,14 @@ ScSortInfoArray* ScTable::CreateSortInfoArray( SCCOLROW nInd1, SCCOLROW nInd2 )
 }
 
 
-bool ScTable::IsSortCollatorGlobal() const
+bool ScTableSheet::IsSortCollatorGlobal() const
 {
     return  pSortCollator == ScGlobal::GetCollator() ||
             pSortCollator == ScGlobal::GetCaseCollator();
 }
 
 
-void ScTable::InitSortCollator( const ScSortParam& rPar )
+void ScTableSheet::InitSortCollator( const ScSortParam& rPar )
 {
     if ( !rPar.aCollatorLocale.Language.isEmpty() )
     {
@@ -329,7 +329,7 @@ void ScTable::InitSortCollator( const ScSortParam& rPar )
 }
 
 
-void ScTable::DestroySortCollator()
+void ScTableSheet::DestroySortCollator()
 {
     if ( pSortCollator )
     {
@@ -340,7 +340,7 @@ void ScTable::DestroySortCollator()
 }
 
 
-void ScTable::SortReorder( ScSortInfoArray* pArray, ScProgress* pProgress )
+void ScTableSheet::SortReorder( ScSortInfoArray* pArray, ScProgress* pProgress )
 {
     bool bByRow = aSortParam.bByRow;
     SCSIZE nCount = pArray->GetCount();
@@ -374,7 +374,7 @@ void ScTable::SortReorder( ScSortInfoArray* pArray, ScProgress* pProgress )
     }
 }
 
-short ScTable::CompareCell(
+short ScTableSheet::CompareCell(
     sal_uInt16 nSort,
     ScRefCellValue& rCell1, SCCOL nCell1Col, SCROW nCell1Row,
     ScRefCellValue& rCell2, SCCOL nCell2Col, SCROW nCell2Row ) const
@@ -469,7 +469,7 @@ short ScTable::CompareCell(
     return nRes;
 }
 
-short ScTable::Compare( ScSortInfoArray* pArray, SCCOLROW nIndex1, SCCOLROW nIndex2 ) const
+short ScTableSheet::Compare( ScSortInfoArray* pArray, SCCOLROW nIndex1, SCCOLROW nIndex2 ) const
 {
     short nRes;
     sal_uInt16 nSort = 0;
@@ -498,7 +498,7 @@ short ScTable::Compare( ScSortInfoArray* pArray, SCCOLROW nIndex1, SCCOLROW nInd
     return nRes;
 }
 
-void ScTable::QuickSort( ScSortInfoArray* pArray, SCsCOLROW nLo, SCsCOLROW nHi )
+void ScTableSheet::QuickSort( ScSortInfoArray* pArray, SCsCOLROW nLo, SCsCOLROW nHi )
 {
     if ((nHi - nLo) == 1)
     {
@@ -540,7 +540,7 @@ void ScTable::QuickSort( ScSortInfoArray* pArray, SCsCOLROW nLo, SCsCOLROW nHi )
     }
 }
 
-void ScTable::SwapCol(SCCOL nCol1, SCCOL nCol2)
+void ScTableSheet::SwapCol(SCCOL nCol1, SCCOL nCol2)
 {
     SCROW nRowStart = aSortParam.nRow1;
     SCROW nRowEnd = aSortParam.nRow2;
@@ -562,7 +562,7 @@ void ScTable::SwapCol(SCCOL nCol1, SCCOL nCol2)
     }
 }
 
-void ScTable::SwapRow(SCROW nRow1, SCROW nRow2)
+void ScTableSheet::SwapRow(SCROW nRow1, SCROW nRow2)
 {
     SCCOL nColStart = aSortParam.nCol1;
     SCCOL nColEnd = aSortParam.nCol2;
@@ -596,7 +596,7 @@ void ScTable::SwapRow(SCROW nRow1, SCROW nRow2)
     }
 }
 
-short ScTable::Compare(SCCOLROW nIndex1, SCCOLROW nIndex2) const
+short ScTableSheet::Compare(SCCOLROW nIndex1, SCCOLROW nIndex2) const
 {
     short nRes;
     sal_uInt16 nSort = 0;
@@ -625,7 +625,7 @@ short ScTable::Compare(SCCOLROW nIndex1, SCCOLROW nIndex2) const
     return nRes;
 }
 
-bool ScTable::IsSorted( SCCOLROW nStart, SCCOLROW nEnd ) const   // ueber aSortParam
+bool ScTableSheet::IsSorted( SCCOLROW nStart, SCCOLROW nEnd ) const   // ueber aSortParam
 {
     for (SCCOLROW i=nStart; i<nEnd; i++)
     {
@@ -635,7 +635,7 @@ bool ScTable::IsSorted( SCCOLROW nStart, SCCOLROW nEnd ) const   // ueber aSortP
     return true;
 }
 
-void ScTable::DecoladeRow( ScSortInfoArray* pArray, SCROW nRow1, SCROW nRow2 )
+void ScTableSheet::DecoladeRow( ScSortInfoArray* pArray, SCROW nRow1, SCROW nRow2 )
 {
     SCROW nRow;
     SCROW nMax = nRow2 - nRow1;
@@ -646,7 +646,7 @@ void ScTable::DecoladeRow( ScSortInfoArray* pArray, SCROW nRow1, SCROW nRow2 )
     }
 }
 
-void ScTable::Sort(const ScSortParam& rSortParam, bool bKeepQuery, ScProgress* pProgress)
+void ScTableSheet::Sort(const ScSortParam& rSortParam, bool bKeepQuery, ScProgress* pProgress)
 {
     aSortParam = rSortParam;
     InitSortCollator( rSortParam );
@@ -699,11 +699,11 @@ namespace {
 
 class SubTotalRowFinder
 {
-    const ScTable& mrTab;
+    const ScTableSheet& mrTab;
     const ScSubTotalParam& mrParam;
 
 public:
-    SubTotalRowFinder(const ScTable& rTab, const ScSubTotalParam& rParam) :
+    SubTotalRowFinder(const ScTableSheet& rTab, const ScSubTotalParam& rParam) :
         mrTab(rTab), mrParam(rParam) {}
 
     bool operator() (size_t nRow, const ScFormulaCell* pCell)
@@ -727,25 +727,6 @@ public:
     }
 };
 
-}
-
-bool ScTable::TestRemoveSubTotals( const ScSubTotalParam& rParam )
-{
-    SCCOL nStartCol = rParam.nCol1;
-    SCROW nStartRow = rParam.nRow1 + 1;     // Header
-    SCCOL nEndCol   = rParam.nCol2;
-    SCROW nEndRow    = rParam.nRow2;
-
-    for (SCCOL nCol = nStartCol; nCol <= nEndCol; ++nCol)
-    {
-        const sc::CellStoreType& rCells = aCol[nCol].maCells;
-        SubTotalRowFinder aFunc(*this, rParam);
-        std::pair<sc::CellStoreType::const_iterator,size_t> aPos =
-            sc::FindFormula(rCells, nStartRow, nEndRow, aFunc);
-        if (aPos.first != rCells.end())
-            return true;
-    }
-    return false;
 }
 
 namespace {
@@ -774,7 +755,26 @@ public:
 
 }
 
-void ScTable::RemoveSubTotals( ScSubTotalParam& rParam )
+bool ScTableSheet::TestRemoveSubTotals( const ScSubTotalParam& rParam )
+{
+    SCCOL nStartCol = rParam.nCol1;
+    SCROW nStartRow = rParam.nRow1 + 1;     // Header
+    SCCOL nEndCol   = rParam.nCol2;
+    SCROW nEndRow    = rParam.nRow2;
+
+    for (SCCOL nCol = nStartCol; nCol <= nEndCol; ++nCol)
+    {
+        const sc::CellStoreType& rCells = aCol[nCol].maCells;
+        SubTotalRowFinder aFunc(*this, rParam);
+        std::pair<sc::CellStoreType::const_iterator,size_t> aPos =
+            sc::FindFormula(rCells, nStartRow, nEndRow, aFunc);
+        if (aPos.first != rCells.end())
+            return true;
+    }
+    return false;
+}
+
+void ScTableSheet::RemoveSubTotals( ScSubTotalParam& rParam )
 {
     SCCOL nStartCol = rParam.nCol1;
     SCROW nStartRow = rParam.nRow1 + 1;     // Header
@@ -804,7 +804,7 @@ void ScTable::RemoveSubTotals( ScSubTotalParam& rParam )
 
 //  harte Zahlenformate loeschen (fuer Ergebnisformeln)
 
-static void lcl_RemoveNumberFormat( ScTable* pTab, SCCOL nCol, SCROW nRow )
+static void lcl_RemoveNumberFormat( ScTableSheet* pTab, SCCOL nCol, SCROW nRow )
 {
     const ScPatternAttr* pPattern = pTab->GetPattern( nCol, nRow );
     if ( pPattern->GetItemSet().GetItemState( ATTR_VALUE_FORMAT, false )
@@ -818,9 +818,8 @@ static void lcl_RemoveNumberFormat( ScTable* pTab, SCCOL nCol, SCROW nRow )
     }
 }
 
-
 // at least MSC needs this at linkage level to be able to use it in a template
-typedef struct lcl_ScTable_DoSubTotals_RowEntry
+typedef struct lcl_ScSheet_DoSubTotals_RowEntry
 {
     sal_uInt16  nGroupNo;
     SCROW   nSubStartRow;
@@ -832,7 +831,7 @@ typedef struct lcl_ScTable_DoSubTotals_RowEntry
 //      neue Zwischenergebnisse
 //      rParam.nRow2 wird veraendert !
 
-bool ScTable::DoSubTotals( ScSubTotalParam& rParam )
+bool ScTableSheet::DoSubTotals( ScSubTotalParam& rParam )
 {
     SCCOL nStartCol = rParam.nCol1;
     SCROW nStartRow = rParam.nRow1 + 1;     // Header
@@ -1086,7 +1085,7 @@ bool ScTable::DoSubTotals( ScSubTotalParam& rParam )
     return bSpaceLeft;
 }
 
-void ScTable::MarkSubTotalCells(
+void ScTableSheet::MarkSubTotalCells(
     sc::ColumnSpanSet& rSet, SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2, bool bVal ) const
 {
     if (!ValidCol(nCol1) || !ValidCol(nCol2))
@@ -1122,7 +1121,7 @@ class QueryEvaluator
 {
     ScDocument& mrDoc;
     svl::SharedStringPool& mrStrPool;
-    const ScTable& mrTab;
+    const ScTableSheet& mrTab;
     const ScQueryParam& mrParam;
     const bool* mpTestEqualCondition;
     utl::TransliterationWrapper* mpTransliteration;
@@ -1184,7 +1183,7 @@ class QueryEvaluator
     }
 
 public:
-    QueryEvaluator(ScDocument& rDoc, const ScTable& rTab, const ScQueryParam& rParam,
+    QueryEvaluator(ScDocument& rDoc, const ScTableSheet& rTab, const ScQueryParam& rParam,
                    const bool* pTestEqualCondition) :
         mrDoc(rDoc),
         mrStrPool(rDoc.GetSharedStringPool()),
@@ -1553,7 +1552,7 @@ public:
 
 }
 
-bool ScTable::ValidQuery(
+bool ScTableSheet::ValidQuery(
     SCROW nRow, const ScQueryParam& rParam, ScRefCellValue* pCell, bool* pbTestEqualCondition)
 {
     if (!rParam.GetEntry(0).bDoQuery)
@@ -1660,7 +1659,7 @@ bool ScTable::ValidQuery(
     return bRet;
 }
 
-void ScTable::TopTenQuery( ScQueryParam& rParam )
+void ScTableSheet::TopTenQuery( ScQueryParam& rParam )
 {
     bool bSortCollatorInitialized = false;
     SCSIZE nEntryCount = rParam.GetEntryCount();
@@ -1824,7 +1823,7 @@ public:
     }
 };
 
-void lcl_PrepareQuery( const ScDocument* pDoc, ScTable* pTab, ScQueryParam& rParam )
+void lcl_PrepareQuery( const ScDocument* pDoc, ScTableSheet* pTab, ScQueryParam& rParam )
 {
     bool bTopTen = false;
     SCSIZE nEntryCount = rParam.GetEntryCount();
@@ -1865,7 +1864,7 @@ void lcl_PrepareQuery( const ScDocument* pDoc, ScTable* pTab, ScQueryParam& rPar
 
 }
 
-SCSIZE ScTable::Query(ScQueryParam& rParamOrg, bool bKeepSub)
+SCSIZE ScTableSheet::Query(ScQueryParam& rParamOrg, bool bKeepSub)
 {
     ScQueryParam    aParam( rParamOrg );
     typedef boost::unordered_set<OUString, OUStringHash> StrSetType;
@@ -1969,7 +1968,7 @@ SCSIZE ScTable::Query(ScQueryParam& rParamOrg, bool bKeepSub)
     return nCount;
 }
 
-bool ScTable::CreateExcelQuery(SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2, ScQueryParam& rQueryParam)
+bool ScTableSheet::CreateExcelQuery(SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2, ScQueryParam& rQueryParam)
 {
     bool    bValid = true;
     boost::scoped_array<SCCOL> pFields(new SCCOL[nCol2-nCol1+1]);
@@ -2048,7 +2047,7 @@ bool ScTable::CreateExcelQuery(SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow
     return bValid;
 }
 
-bool ScTable::CreateStarQuery(SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2, ScQueryParam& rQueryParam)
+bool ScTableSheet::CreateStarQuery(SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2, ScQueryParam& rQueryParam)
 {
     // A valid StarQuery must be at least 4 columns wide. To be precise it
     // should be exactly 4 columns ...
@@ -2157,7 +2156,7 @@ bool ScTable::CreateStarQuery(SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2
     return bValid;
 }
 
-bool ScTable::CreateQueryParam(SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2, ScQueryParam& rQueryParam)
+bool ScTableSheet::CreateQueryParam(SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2, ScQueryParam& rQueryParam)
 {
     SCSIZE i, nCount;
     PutInOrder(nCol1, nCol2);
@@ -2189,7 +2188,7 @@ bool ScTable::CreateQueryParam(SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow
     return bValid;
 }
 
-bool ScTable::HasColHeader( SCCOL nStartCol, SCROW nStartRow, SCCOL nEndCol, SCROW /* nEndRow */ ) const
+bool ScTableSheet::HasColHeader( SCCOL nStartCol, SCROW nStartRow, SCCOL nEndCol, SCROW /* nEndRow */ ) const
 {
     for (SCCOL nCol=nStartCol; nCol<=nEndCol; nCol++)
     {
@@ -2200,7 +2199,7 @@ bool ScTable::HasColHeader( SCCOL nStartCol, SCROW nStartRow, SCCOL nEndCol, SCR
     return true;
 }
 
-bool ScTable::HasRowHeader( SCCOL nStartCol, SCROW nStartRow, SCCOL /* nEndCol */, SCROW nEndRow ) const
+bool ScTableSheet::HasRowHeader( SCCOL nStartCol, SCROW nStartRow, SCCOL /* nEndCol */, SCROW nEndRow ) const
 {
     for (SCROW nRow=nStartRow; nRow<=nEndRow; nRow++)
     {
@@ -2211,12 +2210,12 @@ bool ScTable::HasRowHeader( SCCOL nStartCol, SCROW nStartRow, SCCOL /* nEndCol *
     return true;
 }
 
-void ScTable::GetFilterEntries(SCCOL nCol, SCROW nRow1, SCROW nRow2, std::vector<ScTypedStrData>& rStrings, bool& rHasDates)
+void ScTableSheet::GetFilterEntries(SCCOL nCol, SCROW nRow1, SCROW nRow2, std::vector<ScTypedStrData>& rStrings, bool& rHasDates)
 {
     aCol[nCol].GetFilterEntries( nRow1, nRow2, rStrings, rHasDates );
 }
 
-void ScTable::GetFilteredFilterEntries(
+void ScTableSheet::GetFilteredFilterEntries(
     SCCOL nCol, SCROW nRow1, SCROW nRow2, const ScQueryParam& rParam, std::vector<ScTypedStrData>& rStrings, bool& rHasDates)
 {
     // remove the entry for this column from the query parameter
@@ -2238,22 +2237,12 @@ void ScTable::GetFilteredFilterEntries(
     rHasDates = bHasDates;
 }
 
-bool ScTable::GetDataEntries(SCCOL nCol, SCROW nRow, std::set<ScTypedStrData>& rStrings, bool bLimit)
+bool ScTableSheet::GetDataEntries(SCCOL nCol, SCROW nRow, std::set<ScTypedStrData>& rStrings, bool bLimit)
 {
     return aCol[nCol].GetDataEntries( nRow, rStrings, bLimit );
 }
 
-ScDocument& ScTable::GetDoc()
-{
-    return *pDocument;
-}
-
-const ScDocument& ScTable::GetDoc() const
-{
-    return *pDocument;
-}
-
-sal_uLong ScTable::GetCellCount() const
+sal_uLong ScTableSheet::GetCellCount() const
 {
     sal_uLong nCellCount = 0;
 
@@ -2263,7 +2252,7 @@ sal_uLong ScTable::GetCellCount() const
     return nCellCount;
 }
 
-sal_uLong ScTable::GetWeightedCount() const
+sal_uLong ScTableSheet::GetWeightedCount() const
 {
     sal_uLong nCellCount = 0;
 
@@ -2274,7 +2263,7 @@ sal_uLong ScTable::GetWeightedCount() const
     return nCellCount;
 }
 
-sal_uLong ScTable::GetCodeCount() const
+sal_uLong ScTableSheet::GetCodeCount() const
 {
     sal_uLong nCodeCount = 0;
 
@@ -2285,7 +2274,7 @@ sal_uLong ScTable::GetCodeCount() const
     return nCodeCount;
 }
 
-sal_Int32 ScTable::GetMaxStringLen( SCCOL nCol, SCROW nRowStart,
+sal_Int32 ScTableSheet::GetMaxStringLen( SCCOL nCol, SCROW nRowStart,
         SCROW nRowEnd, rtl_TextEncoding eCharSet ) const
 {
     if ( ValidCol(nCol) )
@@ -2294,7 +2283,7 @@ sal_Int32 ScTable::GetMaxStringLen( SCCOL nCol, SCROW nRowStart,
         return 0;
 }
 
-sal_Int32 ScTable::GetMaxNumberStringLen(
+sal_Int32 ScTableSheet::GetMaxNumberStringLen(
     sal_uInt16& nPrecision, SCCOL nCol, SCROW nRowStart, SCROW nRowEnd ) const
 {
     if ( ValidCol(nCol) )
@@ -2303,7 +2292,7 @@ sal_Int32 ScTable::GetMaxNumberStringLen(
         return 0;
 }
 
-void ScTable::UpdateSelectionFunction( ScFunctionData& rData, const ScMarkData& rMark )
+void ScTableSheet::UpdateSelectionFunction( ScFunctionData& rData, const ScMarkData& rMark )
 {
     for (SCCOL nCol = 0; nCol <= MAXCOL && !rData.bError; ++nCol)
     {

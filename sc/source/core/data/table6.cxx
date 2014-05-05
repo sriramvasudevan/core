@@ -52,7 +52,7 @@ bool lcl_GetTextWithBreaks( const EditTextObject& rData, ScDocument* pDoc, OUStr
 
 }
 
-bool ScTable::SearchCell(const SvxSearchItem& rSearchItem, SCCOL nCol, SCROW nRow,
+bool ScTableSheet::SearchCell(const SvxSearchItem& rSearchItem, SCCOL nCol, SCROW nRow,
                          const ScMarkData& rMark, OUString& rUndoStr, ScDocument* pUndoDoc)
 {
     bool    bFound = false;
@@ -237,7 +237,7 @@ bool ScTable::SearchCell(const SvxSearchItem& rSearchItem, SCCOL nCol, SCROW nRo
     return bFound;
 }
 
-void ScTable::SkipFilteredRows(SCROW& rRow, SCROW& rLastNonFilteredRow, bool bForward)
+void ScTableSheet::SkipFilteredRows(SCROW& rRow, SCROW& rLastNonFilteredRow, bool bForward)
 {
     if (bForward)
     {
@@ -273,7 +273,7 @@ void ScTable::SkipFilteredRows(SCROW& rRow, SCROW& rLastNonFilteredRow, bool bFo
     }
 }
 
-bool ScTable::Search(const SvxSearchItem& rSearchItem, SCCOL& rCol, SCROW& rRow,
+bool ScTableSheet::Search(const SvxSearchItem& rSearchItem, SCCOL& rCol, SCROW& rRow,
                      const ScMarkData& rMark, OUString& rUndoStr, ScDocument* pUndoDoc)
 {
     bool bFound = false;
@@ -421,7 +421,7 @@ bool ScTable::Search(const SvxSearchItem& rSearchItem, SCCOL& rCol, SCROW& rRow,
     return bFound;
 }
 
-bool ScTable::SearchAll(const SvxSearchItem& rSearchItem, const ScMarkData& rMark,
+bool ScTableSheet::SearchAll(const SvxSearchItem& rSearchItem, const ScMarkData& rMark,
                         ScRangeList& rMatchedRanges, OUString& rUndoStr, ScDocument* pUndoDoc)
 {
     bool bFound = true;
@@ -443,7 +443,7 @@ bool ScTable::SearchAll(const SvxSearchItem& rSearchItem, const ScMarkData& rMar
     return bEverFound;
 }
 
-void ScTable::UpdateSearchItemAddressForReplace( const SvxSearchItem& rSearchItem, SCCOL& rCol, SCROW& rRow )
+void ScTableSheet::UpdateSearchItemAddressForReplace( const SvxSearchItem& rSearchItem, SCCOL& rCol, SCROW& rRow )
 {
     if (rSearchItem.GetBackward())
     {
@@ -461,7 +461,7 @@ void ScTable::UpdateSearchItemAddressForReplace( const SvxSearchItem& rSearchIte
     }
 }
 
-bool ScTable::Replace(const SvxSearchItem& rSearchItem, SCCOL& rCol, SCROW& rRow,
+bool ScTableSheet::Replace(const SvxSearchItem& rSearchItem, SCCOL& rCol, SCROW& rRow,
                       const ScMarkData& rMark, OUString& rUndoStr, ScDocument* pUndoDoc)
 {
     SCCOL nCol = rCol;
@@ -477,7 +477,7 @@ bool ScTable::Replace(const SvxSearchItem& rSearchItem, SCCOL& rCol, SCROW& rRow
     return bFound;
 }
 
-bool ScTable::ReplaceAll(
+bool ScTableSheet::ReplaceAll(
     const SvxSearchItem& rSearchItem, const ScMarkData& rMark, ScRangeList& rMatchedRanges,
     OUString& rUndoStr, ScDocument* pUndoDoc)
 {
@@ -500,7 +500,7 @@ bool ScTable::ReplaceAll(
     return bEverFound;
 }
 
-bool ScTable::SearchStyle(const SvxSearchItem& rSearchItem, SCCOL& rCol, SCROW& rRow,
+bool ScTableSheet::SearchStyle(const SvxSearchItem& rSearchItem, SCCOL& rCol, SCROW& rRow,
                           const ScMarkData& rMark)
 {
     const ScStyleSheet* pSearchStyle = (const ScStyleSheet*)
@@ -580,7 +580,7 @@ bool ScTable::SearchStyle(const SvxSearchItem& rSearchItem, SCCOL& rCol, SCROW& 
 
 //!     einzelnes Pattern fuer Undo zurueckgeben
 
-bool ScTable::ReplaceStyle(const SvxSearchItem& rSearchItem, SCCOL& rCol, SCROW& rRow,
+bool ScTableSheet::ReplaceStyle(const SvxSearchItem& rSearchItem, SCCOL& rCol, SCROW& rRow,
                            const ScMarkData& rMark, bool bIsUndo)
 {
     bool bRet;
@@ -605,7 +605,7 @@ bool ScTable::ReplaceStyle(const SvxSearchItem& rSearchItem, SCCOL& rCol, SCROW&
     return bRet;
 }
 
-bool ScTable::SearchAllStyle(
+bool ScTableSheet::SearchAllStyle(
     const SvxSearchItem& rSearchItem, const ScMarkData& rMark, ScRangeList& rMatchedRanges)
 {
     const ScStyleSheet* pSearchStyle = (const ScStyleSheet*)
@@ -641,7 +641,7 @@ bool ScTable::SearchAllStyle(
     return bEverFound;
 }
 
-bool ScTable::ReplaceAllStyle(
+bool ScTableSheet::ReplaceAllStyle(
     const SvxSearchItem& rSearchItem, const ScMarkData& rMark, ScRangeList& rMatchedRanges,
     ScDocument* pUndoDoc)
 {
@@ -668,7 +668,7 @@ bool ScTable::ReplaceAllStyle(
     return bRet;
 }
 
-bool ScTable::SearchAndReplace(
+bool ScTableSheet::SearchAndReplace(
     const SvxSearchItem& rSearchItem, SCCOL& rCol, SCROW& rRow, const ScMarkData& rMark,
     ScRangeList& rMatchedRanges, OUString& rUndoStr, ScDocument* pUndoDoc)
 {
@@ -732,7 +732,7 @@ bool ScTable::SearchAndReplace(
     return bFound;
 }
 
-bool ScTable::SearchAndReplaceEmptyCells(
+bool ScTableSheet::SearchAndReplaceEmptyCells(
     const SvxSearchItem& rSearchItem, SCCOL& rCol, SCROW& rRow, const ScMarkData& rMark,
     ScRangeList& rMatchedRanges, OUString& rUndoStr, ScDocument* pUndoDoc)
 {
@@ -835,7 +835,7 @@ bool lcl_maybeReplaceCellString(
 
 }
 
-bool ScTable::SearchRangeForEmptyCell(
+bool ScTableSheet::SearchRangeForEmptyCell(
     const ScRange& rRange, const SvxSearchItem& rSearchItem,
     SCCOL& rCol, SCROW& rRow, OUString& rUndoStr)
 {
@@ -945,7 +945,7 @@ bool ScTable::SearchRangeForEmptyCell(
     return false;
 }
 
-bool ScTable::SearchRangeForAllEmptyCells(
+bool ScTableSheet::SearchRangeForAllEmptyCells(
     const ScRange& rRange, const SvxSearchItem& rSearchItem,
     ScRangeList& rMatchedRanges, OUString& rUndoStr, ScDocument* pUndoDoc)
 {

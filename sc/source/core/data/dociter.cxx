@@ -297,7 +297,7 @@ bool ScValueIterator::GetFirst(double& rValue, sal_uInt16& rErr)
     mnCol = maStartPos.Col();
     mnTab = maStartPos.Tab();
 
-    ScTable* pTab = pDoc->FetchTable(mnTab);
+    ScTableSheet* pTab = pDoc->FetchTable(mnTab);
     if (!pTab)
         return false;
 
@@ -329,7 +329,7 @@ ScDBQueryDataIterator::DataAccess::~DataAccess()
 
 const sc::CellStoreType* ScDBQueryDataIterator::GetColumnCellStore(ScDocument& rDoc, SCTAB nTab, SCCOL nCol)
 {
-    ScTable* pTab = rDoc.FetchTable(nTab);
+    ScTableSheet* pTab = rDoc.FetchTable(nTab);
     if (!pTab)
         return NULL;
 

@@ -13,7 +13,7 @@
 #include <clipparam.hxx>
 #include <bcaslot.hxx>
 
-bool ScTable::IsMerged( SCCOL nCol, SCROW nRow ) const
+bool ScTableSheet::IsMerged( SCCOL nCol, SCROW nRow ) const
 {
     if (!ValidCol(nCol))
         return false;
@@ -21,7 +21,7 @@ bool ScTable::IsMerged( SCCOL nCol, SCROW nRow ) const
     return aCol[nCol].IsMerged(nRow);
 }
 
-void ScTable::DeleteBeforeCopyFromClip( sc::CopyFromClipContext& rCxt, const ScTable& rClipTab )
+void ScTableSheet::DeleteBeforeCopyFromClip( sc::CopyFromClipContext& rCxt, const ScTableSheet& rClipTab )
 {
     sc::CopyFromClipContext::Range aRange = rCxt.getDestRange();
     if (!ValidCol(aRange.mnCol1) || !ValidCol(aRange.mnCol2))
@@ -49,14 +49,14 @@ void ScTable::DeleteBeforeCopyFromClip( sc::CopyFromClipContext& rCxt, const ScT
     SetStreamValid(false);
 }
 
-void ScTable::CopyOneCellFromClip(
+void ScTableSheet::CopyOneCellFromClip(
     sc::CopyFromClipContext& rCxt, SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2 )
 {
     for (SCCOL nCol = nCol1; nCol <= nCol2; ++nCol)
         aCol[nCol].CopyOneCellFromClip(rCxt, nRow1, nRow2);
 }
 
-void ScTable::SetValues( SCCOL nCol, SCROW nRow, const std::vector<double>& rVals )
+void ScTableSheet::SetValues( SCCOL nCol, SCROW nRow, const std::vector<double>& rVals )
 {
     if (!ValidCol(nCol))
         return;
@@ -64,7 +64,7 @@ void ScTable::SetValues( SCCOL nCol, SCROW nRow, const std::vector<double>& rVal
     aCol[nCol].SetValues(nRow, rVals);
 }
 
-void ScTable::TransferCellValuesTo( SCCOL nCol, SCROW nRow, size_t nLen, sc::CellValues& rDest )
+void ScTableSheet::TransferCellValuesTo( SCCOL nCol, SCROW nRow, size_t nLen, sc::CellValues& rDest )
 {
     if (!ValidCol(nCol))
         return;
@@ -72,7 +72,7 @@ void ScTable::TransferCellValuesTo( SCCOL nCol, SCROW nRow, size_t nLen, sc::Cel
     aCol[nCol].TransferCellValuesTo(nRow, nLen, rDest);
 }
 
-void ScTable::CopyCellValuesFrom( SCCOL nCol, SCROW nRow, const sc::CellValues& rSrc )
+void ScTableSheet::CopyCellValuesFrom( SCCOL nCol, SCROW nRow, const sc::CellValues& rSrc )
 {
     if (!ValidCol(nCol))
         return;

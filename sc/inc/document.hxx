@@ -136,7 +136,7 @@ class ScRangeData;
 class ScRangeName;
 class ScStyleSheet;
 class ScStyleSheetPool;
-class ScTable;
+class ScTableSheet;
 class ScTableProtection;
 class ScTokenArray;
 class ScValidationData;
@@ -252,7 +252,7 @@ friend class ScDocShell;
 friend class ScDocRowHeightUpdater;
 friend class ScColumnTextWidthIterator;
 friend class ScFormulaCell;
-friend class ScTable;
+friend class ScTableSheet;
 friend class ScColumn;
 friend struct ScRefCellValue;
 friend class ScDocumentImport;
@@ -260,7 +260,7 @@ friend class sc::DocumentStreamAccess;
 friend class sc::ColumnSpanSet;
 friend class sc::EditTextIterator;
 
-    typedef ::std::vector<ScTable*> TableContainer;
+    typedef ::std::vector<ScTableSheet*> TableContainer;
 private:
 
     rtl::Reference<ScPoolHelper> xPoolHelper;
@@ -2103,8 +2103,8 @@ private: // CLOOK-Impl-methods
     };
 
     bool TableExists( SCTAB nTab ) const;
-    ScTable* FetchTable( SCTAB nTab );
-    const ScTable* FetchTable( SCTAB nTab ) const;
+    ScTableSheet* FetchTable( SCTAB nTab );
+    const ScTableSheet* FetchTable( SCTAB nTab ) const;
 
     void    MergeNumberFormatter(ScDocument* pSrcDoc);
 

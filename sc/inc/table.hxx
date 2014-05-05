@@ -33,6 +33,7 @@
 #include "cellvalue.hxx"
 #include "formula/types.hxx"
 #include "calcmacros.hxx"
+#include "sheet.hxx"
 
 #include <set>
 #include <map>
@@ -111,7 +112,7 @@ class ScRangeName;
 class ScDBData;
 class ScDocumentImport;
 
-class ScTable : boost::noncopyable
+class ScTableSheet : public ScSheet
 {
 private:
     typedef ::std::vector< ScRange > ScRangeVec;
@@ -219,12 +220,10 @@ friend class sc::ColumnSpanSet;
 friend class sc::EditTextIterator;
 
 public:
-                ScTable( ScDocument* pDoc, SCTAB nNewTab, const OUString& rNewName,
+                ScTableSheet( ScDocument* pDoc, SCTAB nNewTab, const OUString& rNewName,
                          bool bColInfo = true, bool bRowInfo = true );
-                ~ScTable();
+                ~ScTableSheet();
 
-    ScDocument& GetDoc();
-    const ScDocument& GetDoc() const;
     SCTAB GetTab() const { return nTab; }
 
     ScOutlineTable* GetOutlineTable()               { return pOutlineTable; }
@@ -246,25 +245,8 @@ public:
 
     void MarkSubTotalCells( sc::ColumnSpanSet& rSet, SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2, bool bVal ) const;
 
-    const ScSheetEvents* GetSheetEvents() const              { return pSheetEvents; }
-    void        SetSheetEvents( const ScSheetEvents* pNew );
-
-    bool        IsVisible() const                            { return bVisible; }
-    void        SetVisible( bool bVis );
-
-    bool        IsStreamValid() const                        { return bStreamValid; }
-    void        SetStreamValid( bool bSet, bool bIgnoreLock = false );
-
     bool        IsPendingRowHeights() const                  { return bPendingRowHeights; }
     void        SetPendingRowHeights( bool bSet );
-
-    bool        GetCalcNotification() const                  { return bCalcNotification; }
-    void        SetCalcNotification( bool bSet );
-
-    bool        IsLayoutRTL() const                          { return bLayoutRTL; }
-    bool        IsLoadingRTL() const                         { return bLoadingRTL; }
-    void        SetLayoutRTL( bool bSet );
-    void        SetLoadingRTL( bool bSet );
 
     bool        IsScenario() const                           { return bScenario; }
     void        SetScenario( bool bFlag );
@@ -290,27 +272,15 @@ public:
     void        SetLink( sal_uInt8 nMode, const OUString& rDoc, const OUString& rFlt,
                         const OUString& rOpt, const OUString& rTab, sal_uLong nRefreshDelay );
 
-    void        GetName( OUString& rName ) const;
-    void        SetName( const OUString& rNewName );
-
     void        SetAnonymousDBData(ScDBData* pDBData);
     ScDBData*   GetAnonymousDBData();
 
     void        GetCodeName( OUString& rName ) const {  rName = aCodeName; }
     void        SetCodeName( const OUString& rNewName ) { aCodeName = rNewName; }
 
-    const OUString& GetUpperName() const;
-
-    const OUString&   GetPageStyle() const                    { return aPageStyle; }
     void            SetPageStyle( const OUString& rName );
     void            PageStyleModified( const OUString& rNewName );
 
-    bool            IsProtected() const;
-    void            SetProtection(const ScTableProtection* pProtect);
-    ScTableProtection* GetProtection();
-
-    Size            GetPageSize() const;
-    void            SetPageSize( const Size& rSize );
     void            SetRepeatArea( SCCOL nStartCol, SCCOL nEndCol, SCROW nStartRow, SCROW nEndRow );
 
     void        LockTable();
@@ -421,21 +391,21 @@ public:
         const sc::ColumnSet& rRegroupCols, SCCOL nStartCol, SCROW nStartRow, SCROW nEndRow, SCSIZE nSize, bool* pUndoOutline = NULL );
 
     void        DeleteArea(SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2, sal_uInt16 nDelFlag);
-    void CopyToClip( sc::CopyToClipContext& rCxt, SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2, ScTable* pTable );
-    void CopyToClip( sc::CopyToClipContext& rCxt, const ScRangeList& rRanges, ScTable* pTable );
-    void CopyStaticToDocument(SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2, ScTable* pDestTab);
-    void CopyCellToDocument( SCCOL nSrcCol, SCROW nSrcRow, SCCOL nDestCol, SCROW nDestRow, ScTable& rDestTab );
+    void CopyToClip( sc::CopyToClipContext& rCxt, SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2, ScTableSheet* pTable );
+    void CopyToClip( sc::CopyToClipContext& rCxt, const ScRangeList& rRanges, ScTableSheet* pTable );
+    void CopyStaticToDocument(SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2, ScTableSheet* pDestTab);
+    void CopyCellToDocument( SCCOL nSrcCol, SCROW nSrcRow, SCCOL nDestCol, SCROW nDestRow, ScTableSheet& rDestTab );
 
     bool InitColumnBlockPosition( sc::ColumnBlockPosition& rBlockPos, SCCOL nCol );
 
-    void DeleteBeforeCopyFromClip( sc::CopyFromClipContext& rCxt, const ScTable& rClipTab );
+    void DeleteBeforeCopyFromClip( sc::CopyFromClipContext& rCxt, const ScTableSheet& rClipTab );
 
     void CopyOneCellFromClip(
         sc::CopyFromClipContext& rCxt, SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2 );
 
     void CopyFromClip(
         sc::CopyFromClipContext& rCxt, SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2,
-        SCsCOL nDx, SCsROW nDy, ScTable* pTable );
+        SCsCOL nDx, SCsROW nDy, ScTableSheet* pTable );
 
     void StartListeningInArea(
         sc::StartListeningContext& rCxt, SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2 );
@@ -445,42 +415,41 @@ public:
 
     void CopyToTable(
         sc::CopyToDocContext& rCxt, SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2,
-        sal_uInt16 nFlags, bool bMarked, ScTable* pDestTab,
+        sal_uInt16 nFlags, bool bMarked, ScTableSheet* pDestTab,
         const ScMarkData* pMarkData = NULL, bool bAsLink = false, bool bColRowFlags = true );
 
     void UndoToTable(
         sc::CopyToDocContext& rCxt, SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2,
-        sal_uInt16 nFlags, bool bMarked, ScTable* pDestTab, const ScMarkData* pMarkData = NULL );
+        sal_uInt16 nFlags, bool bMarked, ScTableSheet* pDestTab, const ScMarkData* pMarkData = NULL );
 
     void        CopyConditionalFormat( SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2,
-                            SCsCOL nDx, SCsROW nDy, ScTable* pTable);
+                            SCsCOL nDx, SCsROW nDy, ScTableSheet* pTable);
     void        TransposeClip( SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2,
-                                ScTable* pTransClip, sal_uInt16 nFlags, bool bAsLink );
+                                ScTableSheet* pTransClip, sal_uInt16 nFlags, bool bAsLink );
 
                 // mark of this document
     void MixMarked(
         sc::MixDocContext& rCxt, const ScMarkData& rMark, sal_uInt16 nFunction,
-        bool bSkipEmpty, const ScTable* pSrcTab );
+        bool bSkipEmpty, const ScTableSheet* pSrcTab );
 
     void MixData(
         sc::MixDocContext& rCxt, SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2,
-        sal_uInt16 nFunction, bool bSkipEmpty, const ScTable* pSrcTab );
+        sal_uInt16 nFunction, bool bSkipEmpty, const ScTableSheet* pSrcTab );
 
     void        CopyData( SCCOL nStartCol, SCROW nStartRow, SCCOL nEndCol, SCROW nEndRow,
                             SCCOL nDestCol, SCROW nDestRow, SCTAB nDestTab );
 
-    void        CopyScenarioFrom( const ScTable* pSrcTab );
-    void        CopyScenarioTo( ScTable* pDestTab ) const;
-    bool        TestCopyScenarioTo( const ScTable* pDestTab ) const;
+    void        CopyScenarioFrom( const ScTableSheet* pSrcTab );
+    void        CopyScenarioTo( ScTableSheet* pDestTab ) const;
+    bool        TestCopyScenarioTo( const ScTableSheet* pDestTab ) const;
     void        MarkScenarioIn( ScMarkData& rMark, sal_uInt16 nNeededBits ) const;
     bool        HasScenarioRange( const ScRange& rRange ) const;
     void        InvalidateScenarioRanges();
     const ScRangeList* GetScenarioRanges() const;
 
-    void        CopyUpdated( const ScTable* pPosTab, ScTable* pDestTab ) const;
+    void        CopyUpdated( const ScTableSheet* pPosTab, ScTableSheet* pDestTab ) const;
 
     void        InvalidateTableArea();
-    void        InvalidatePageBreaks();
 
     bool        GetCellArea( SCCOL& rEndCol, SCROW& rEndRow ) const;            // FALSE = empty
     bool        GetTableArea( SCCOL& rEndCol, SCROW& rEndRow ) const;
@@ -569,7 +538,6 @@ public:
     void        AutoFormat( SCCOL nStartCol, SCROW nStartRow, SCCOL nEndCol, SCROW nEndRow,
                                     sal_uInt16 nFormatNo );
     void        GetAutoFormatData(SCCOL nStartCol, SCROW nStartRow, SCCOL nEndCol, SCROW nEndRow, ScAutoFormatData& rData);
-    void        ScReplaceTabsStr( OUString& rStr, const OUString& rSrch, const OUString& rRepl ); // from sw
     bool        SearchAndReplace(
         const SvxSearchItem& rSearchItem, SCCOL& rCol, SCROW& rRow, const ScMarkData& rMark,
         ScRangeList& rMatchedRanges, OUString& rUndoStr, ScDocument* pUndoDoc);
@@ -660,8 +628,6 @@ public:
 
     sal_uInt16          GetPrintRangeCount() const          { return static_cast< sal_uInt16 >( aPrintRanges.size() ); }
     const ScRange*  GetPrintRange(sal_uInt16 nPos) const;
-    /** Returns true, if the sheet is always printed. */
-    bool            IsPrintEntireSheet() const          { return bPrintEntireSheet; }
 
     /** Removes all print ranges. */
     void            ClearPrintRanges();
@@ -801,9 +767,9 @@ public:
     bool        ColHidden(SCCOL nCol, SCCOL* pFirstCol = NULL, SCCOL* pLastCol = NULL) const;
     bool        SetRowHidden(SCROW nStartRow, SCROW nEndRow, bool bHidden);
     bool        SetColHidden(SCCOL nStartCol, SCCOL nEndCol, bool bHidden);
-    void        CopyColHidden(ScTable& rTable, SCCOL nStartCol, SCCOL nEndCol);
-    void        CopyRowHidden(ScTable& rTable, SCROW nStartRow, SCROW nEndRow);
-    void        CopyRowHeight(ScTable& rSrcTable, SCROW nStartRow, SCROW nEndRow, SCROW nSrcOffset);
+    void        CopyColHidden(ScTableSheet& rTable, SCCOL nStartCol, SCCOL nEndCol);
+    void        CopyRowHidden(ScTableSheet& rTable, SCROW nStartRow, SCROW nEndRow);
+    void        CopyRowHeight(ScTableSheet& rSrcTable, SCROW nStartRow, SCROW nEndRow, SCROW nSrcOffset);
     SCROW       FirstVisibleRow(SCROW nStartRow, SCROW nEndRow) const;
     SCROW       LastVisibleRow(SCROW nStartRow, SCROW nEndRow) const;
     SCROW       CountVisibleRows(SCROW nStartRow, SCROW nEndRow) const;
@@ -814,8 +780,8 @@ public:
     bool        RowFiltered(SCROW nRow, SCROW* pFirstRow = NULL, SCROW* pLastRow = NULL) const;
     bool        ColFiltered(SCCOL nCol, SCCOL* pFirstCol = NULL, SCCOL* pLastCol = NULL) const;
     bool        HasFilteredRows(SCROW nStartRow, SCROW nEndRow) const;
-    void        CopyColFiltered(ScTable& rTable, SCCOL nStartCol, SCCOL nEndCol);
-    void        CopyRowFiltered(ScTable& rTable, SCROW nStartRow, SCROW nEndRow);
+    void        CopyColFiltered(ScTableSheet& rTable, SCCOL nStartCol, SCCOL nEndCol);
+    void        CopyRowFiltered(ScTableSheet& rTable, SCROW nStartRow, SCROW nEndRow);
     void        SetRowFiltered(SCROW nStartRow, SCROW nEndRow, bool bFiltered);
     void        SetColFiltered(SCCOL nStartCol, SCCOL nEndCol, bool bFiltered);
     SCROW       FirstNonFilteredRow(SCROW nStartRow, SCROW nEndRow) const;
@@ -916,7 +882,7 @@ public:
     void BroadcastRefMoved( const sc::RefMovedHint& rHint );
 
     void TransferListeners(
-        ScTable& rDestTab, SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2,
+        ScTableSheet& rDestTab, SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2,
         SCCOL nColDelta, SCROW nRowDelta );
 
     void TransferCellValuesTo( SCCOL nCol, SCROW nRow, size_t nLen, sc::CellValues& rDest );
@@ -1064,14 +1030,14 @@ private:
      */
     void        MaybeAddExtraColumn(SCCOL& rCol, SCROW nRow, OutputDevice* pDev, double nPPTX, double nPPTY);
 
-    void        CopyPrintRange(const ScTable& rTable);
+    void        CopyPrintRange(const ScTableSheet& rTable);
 
     SCCOL       FindNextVisibleColWithContent(SCCOL nCol, bool bRight, SCROW nRow) const;
 
     SCCOL       FindNextVisibleCol(SCCOL nCol, bool bRight) const;
 
     // Clipboard transpose for notes
-    void TransposeColNotes(ScTable* pTransClip, SCCOL nCol1, SCCOL nCol, SCROW nRow1, SCROW nRow2);
+    void TransposeColNotes(ScTableSheet* pTransClip, SCCOL nCol1, SCCOL nCol, SCROW nRow1, SCROW nRow2);
 
     /**
      * Use this to iterate through non-empty visible cells in a single column.

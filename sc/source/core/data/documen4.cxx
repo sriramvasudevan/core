@@ -313,7 +313,7 @@ void ScDocument::InsertMatrixFormula(SCCOL nCol1, SCROW nRow1,
     for (; itr != itrEnd && *itr < nMax; ++itr)
     {
         SCTAB nTab = *itr;
-        ScTable* pTab = FetchTable(nTab);
+        ScTableSheet* pTab = FetchTable(nTab);
         if (!pTab)
             continue;
 

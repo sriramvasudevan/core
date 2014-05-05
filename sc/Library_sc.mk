@@ -178,6 +178,11 @@ $(eval $(call gb_Library_add_exception_objects,sc,\
     sc/source/core/data/stlsheet \
     sc/source/core/data/subtotalparam \
     sc/source/core/data/tabbgcolor \
+    sc/source/core/data/sheet1 \
+    sc/source/core/data/sheet2 \
+    sc/source/core/data/sheet3 \
+    sc/source/core/data/sheet4 \
+    sc/source/core/data/sheet5 \
     sc/source/core/data/table1 \
     sc/source/core/data/table2 \
     sc/source/core/data/table3 \

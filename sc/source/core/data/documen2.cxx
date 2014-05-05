@@ -553,7 +553,7 @@ void ScDocument::ResetClip( ScDocument* pSourceDoc, const ScMarkData* pMarks )
                     pSourceDoc->maTabs[i]->GetName(aString);
                     if ( i < static_cast<SCTAB>(maTabs.size()) )
                     {
-                        maTabs[i] = new ScTable(this, i, aString);
+                        maTabs[i] = new ScTableSheet(this, i, aString);
 
                     }
                     else
@@ -562,7 +562,7 @@ void ScDocument::ResetClip( ScDocument* pSourceDoc, const ScMarkData* pMarks )
                         {
                             maTabs.resize(i, NULL );
                         }
-                        maTabs.push_back(new ScTable(this, i, aString));
+                        maTabs.push_back(new ScTableSheet(this, i, aString));
                     }
                     maTabs[i]->SetLayoutRTL( pSourceDoc->maTabs[i]->IsLayoutRTL() );
                 }
@@ -582,7 +582,7 @@ void ScDocument::ResetClip( ScDocument* pSourceDoc, SCTAB nTab )
         {
             maTabs.resize(nTab+1, NULL );
         }
-        maTabs[nTab] = new ScTable(this, nTab,
+        maTabs[nTab] = new ScTableSheet(this, nTab,
                             OUString("baeh"));
         if (nTab < static_cast<SCTAB>(pSourceDoc->maTabs.size()) && pSourceDoc->maTabs[nTab])
             maTabs[nTab]->SetLayoutRTL( pSourceDoc->maTabs[nTab]->IsLayoutRTL() );
@@ -600,7 +600,7 @@ void ScDocument::EnsureTable( SCTAB nTab )
         maTabs.resize(nTab+1, NULL);
 
     if (!maTabs[nTab])
-        maTabs[nTab] = new ScTable(this, nTab, "temp", bExtras, bExtras);
+        maTabs[nTab] = new ScTableSheet(this, nTab, "temp", bExtras, bExtras);
 }
 
 ScRefCellValue ScDocument::GetRefCellValue( const ScAddress& rPos )
@@ -758,7 +758,7 @@ bool ScDocument::MoveTab( SCTAB nOldPos, SCTAB nNewPos, ScProgress* pProgress )
                 pUnoBroadcaster->Broadcast( ScUpdateRefHint( URM_REORDER,
                             aSourceRange, 0,0,nDz ) );
 
-            ScTable* pSaveTab = maTabs[nOldPos];
+            ScTableSheet* pSaveTab = maTabs[nOldPos];
             maTabs.erase(maTabs.begin()+nOldPos);
             maTabs.insert(maTabs.begin()+nNewPos, pSaveTab);
             TableContainer::iterator it = maTabs.begin();
@@ -818,7 +818,7 @@ bool ScDocument::CopyTab( SCTAB nOldPos, SCTAB nNewPos, const ScMarkData* pOnlyM
         if (nNewPos >= static_cast<SCTAB>(maTabs.size()))
         {
             nNewPos = static_cast<SCTAB>(maTabs.size());
-            maTabs.push_back(new ScTable(this, nNewPos, aName));
+            maTabs.push_back(new ScTableSheet(this, nNewPos, aName));
         }
         else
         {
@@ -852,7 +852,7 @@ bool ScDocument::CopyTab( SCTAB nOldPos, SCTAB nNewPos, const ScMarkData* pOnlyM
                     maTabs[i] = maTabs[i - 1];
                 if (nNewPos <= nOldPos)
                     nOldPos++;
-                maTabs[nNewPos] = new ScTable(this, nNewPos, aName);
+                maTabs[nNewPos] = new ScTableSheet(this, nNewPos, aName);
                 bValid = true;
                 for (TableContainer::iterator it = maTabs.begin(); it != maTabs.end(); ++it)
                     if (*it && it != maTabs.begin()+nOldPos && it != maTabs.begin() + nNewPos)
@@ -1109,7 +1109,7 @@ bool ScDocument::SetFormulaCells( const ScAddress& rPos, std::vector<ScFormulaCe
     if (rCells.empty())
         return false;
 
-    ScTable* pTab = FetchTable(rPos.Tab());
+    ScTableSheet* pTab = FetchTable(rPos.Tab());
     if (!pTab)
         return false;
 

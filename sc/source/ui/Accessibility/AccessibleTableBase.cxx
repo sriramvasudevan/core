@@ -146,7 +146,7 @@ sal_Int32 SAL_CALL ScAccessibleTableBase::getAccessibleRowExtentAt( sal_Int32 nR
 
     if (mpDoc)
     {
-        ScTable* pTab = mpDoc->FetchTable(maRange.aStart.Tab());
+        ScTableSheet* pTab = mpDoc->FetchTable(maRange.aStart.Tab());
         if (pTab)
         {
             SCROW nStartRow = static_cast<SCROW>(nRow);
@@ -180,7 +180,7 @@ sal_Int32 SAL_CALL ScAccessibleTableBase::getAccessibleColumnExtentAt( sal_Int32
 
     if (mpDoc)
     {
-        ScTable* pTab = mpDoc->FetchTable(maRange.aStart.Tab());
+        ScTableSheet* pTab = mpDoc->FetchTable(maRange.aStart.Tab());
         if (pTab)
         {
             SCROW nStartRow = static_cast<SCROW>(nRow);

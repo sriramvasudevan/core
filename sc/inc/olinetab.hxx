@@ -27,7 +27,7 @@
 
 #define SC_OL_MAXDEPTH      7
 
-class ScTable;
+class ScTableSheet;
 
 
 class ScOutlineEntry
@@ -135,7 +135,7 @@ public:
     bool DeleteSpace(SCCOLROW nStartPos, SCSIZE nSize);
 
     bool ManualAction(
-        SCCOLROW nStartPos, SCCOLROW nEndPos, bool bShow, const ScTable& rTable, bool bCol);
+        SCCOLROW nStartPos, SCCOLROW nEndPos, bool bShow, const ScTableSheet& rTable, bool bCol);
 
     void RemoveAll();
 };

@@ -14,7 +14,7 @@
 #include "mtvelements.hxx"
 
 class ScColumn;
-class ScTable;
+class ScTableSheet;
 class ScDocument;
 class EditTextObject;
 
@@ -28,7 +28,7 @@ namespace sc {
  */
 class EditTextIterator
 {
-    const ScTable& mrTable;
+    const ScTableSheet& mrTable;
     const ScColumn* mpCol;
     const ScColumn* mpColEnd;
     const CellStoreType* mpCells;

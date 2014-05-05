@@ -60,7 +60,7 @@ void ScDocumentImport::setDefaultNumericScript(sal_uInt16 nScript)
 
 void ScDocumentImport::setCellStyleToSheet(SCTAB nTab, const ScStyleSheet& rStyle)
 {
-    ScTable* pTab = mpImpl->mrDoc.FetchTable(nTab);
+    ScTableSheet* pTab = mpImpl->mrDoc.FetchTable(nTab);
     if (!pTab)
         return;
 
@@ -87,7 +87,7 @@ bool ScDocumentImport::appendSheet(const OUString& rName)
     if (!ValidTab(nTabCount))
         return false;
 
-    mpImpl->mrDoc.maTabs.push_back(new ScTable(&mpImpl->mrDoc, nTabCount, rName));
+    mpImpl->mrDoc.maTabs.push_back(new ScTableSheet(&mpImpl->mrDoc, nTabCount, rName));
     return true;
 }
 
@@ -101,7 +101,7 @@ void ScDocumentImport::setOriginDate(sal_uInt16 nYear, sal_uInt16 nMonth, sal_uI
 
 void ScDocumentImport::setAutoInput(const ScAddress& rPos, const OUString& rStr, ScSetStringParam* pStringParam)
 {
-    ScTable* pTab = mpImpl->mrDoc.FetchTable(rPos.Tab());
+    ScTableSheet* pTab = mpImpl->mrDoc.FetchTable(rPos.Tab());
     if (!pTab)
         return;
 
@@ -142,7 +142,7 @@ void ScDocumentImport::setAutoInput(const ScAddress& rPos, const OUString& rStr,
 
 void ScDocumentImport::setNumericCell(const ScAddress& rPos, double fVal)
 {
-    ScTable* pTab = mpImpl->mrDoc.FetchTable(rPos.Tab());
+    ScTableSheet* pTab = mpImpl->mrDoc.FetchTable(rPos.Tab());
     if (!pTab)
         return;
 
@@ -158,7 +158,7 @@ void ScDocumentImport::setNumericCell(const ScAddress& rPos, double fVal)
 
 void ScDocumentImport::setStringCell(const ScAddress& rPos, const OUString& rStr)
 {
-    ScTable* pTab = mpImpl->mrDoc.FetchTable(rPos.Tab());
+    ScTableSheet* pTab = mpImpl->mrDoc.FetchTable(rPos.Tab());
     if (!pTab)
         return;
 
@@ -178,7 +178,7 @@ void ScDocumentImport::setStringCell(const ScAddress& rPos, const OUString& rStr
 
 void ScDocumentImport::setEditCell(const ScAddress& rPos, EditTextObject* pEditText)
 {
-    ScTable* pTab = mpImpl->mrDoc.FetchTable(rPos.Tab());
+    ScTableSheet* pTab = mpImpl->mrDoc.FetchTable(rPos.Tab());
     if (!pTab)
         return;
 
@@ -196,7 +196,7 @@ void ScDocumentImport::setEditCell(const ScAddress& rPos, EditTextObject* pEditT
 void ScDocumentImport::setFormulaCell(
     const ScAddress& rPos, const OUString& rFormula, formula::FormulaGrammar::Grammar eGrammar)
 {
-    ScTable* pTab = mpImpl->mrDoc.FetchTable(rPos.Tab());
+    ScTableSheet* pTab = mpImpl->mrDoc.FetchTable(rPos.Tab());
     if (!pTab)
         return;
 
@@ -213,7 +213,7 @@ void ScDocumentImport::setFormulaCell(
 
 void ScDocumentImport::setFormulaCell(const ScAddress& rPos, ScTokenArray* pArray)
 {
-    ScTable* pTab = mpImpl->mrDoc.FetchTable(rPos.Tab());
+    ScTableSheet* pTab = mpImpl->mrDoc.FetchTable(rPos.Tab());
     if (!pTab)
         return;
 
@@ -230,7 +230,7 @@ void ScDocumentImport::setFormulaCell(const ScAddress& rPos, ScTokenArray* pArra
 
 void ScDocumentImport::setFormulaCell(const ScAddress& rPos, ScFormulaCell* pCell)
 {
-    ScTable* pTab = mpImpl->mrDoc.FetchTable(rPos.Tab());
+    ScTableSheet* pTab = mpImpl->mrDoc.FetchTable(rPos.Tab());
     if (!pTab)
         return;
 
@@ -250,7 +250,7 @@ void ScDocumentImport::setMatrixCells(
 {
     const ScAddress& rBasePos = rRange.aStart;
 
-    ScTable* pTab = mpImpl->mrDoc.FetchTable(rBasePos.Tab());
+    ScTableSheet* pTab = mpImpl->mrDoc.FetchTable(rBasePos.Tab());
     if (!pTab)
         return;
 
@@ -327,7 +327,7 @@ void ScDocumentImport::setTableOpCells(const ScRange& rRange, const ScTabOpParam
     SCCOL nCol2 = rRange.aEnd.Col();
     SCROW nRow2 = rRange.aEnd.Row();
 
-    ScTable* pTab = mpImpl->mrDoc.FetchTable(nTab);
+    ScTableSheet* pTab = mpImpl->mrDoc.FetchTable(nTab);
     if (!pTab)
         return;
 
@@ -489,7 +489,7 @@ void ScDocumentImport::finalize()
         if (!*itTab)
             continue;
 
-        ScTable& rTab = **itTab;
+        ScTableSheet& rTab = **itTab;
         ScColumn* pCol = &rTab.aCol[0];
         ScColumn* pColEnd = pCol + static_cast<size_t>(MAXCOLCOUNT);
         for (; pCol != pColEnd; ++pCol)

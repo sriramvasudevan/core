@@ -1744,7 +1744,7 @@ bool ScViewFunc::SearchAndReplace( const SvxSearchItem* pSearchItem,
                     aSearchItem.SetWhich(SID_SEARCH_ITEM);
 
                     ScRangeList aMatchedRanges;
-                    ScTable::UpdateSearchItemAddressForReplace( aSearchItem, nCol, nRow );
+                    ScTableSheet::UpdateSearchItemAddressForReplace( aSearchItem, nCol, nRow );
                     if ( pDoc->SearchAndReplace( aSearchItem, nCol, nRow, nTab, rMark, aMatchedRanges, aUndoStr, NULL ) &&
                             ( nTab == nOldTab ) &&
                             ( nCol != nOldCol || nRow != nOldRow ) )

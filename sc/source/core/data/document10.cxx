@@ -19,7 +19,7 @@
 
 bool ScDocument::IsMerged( const ScAddress& rPos ) const
 {
-    const ScTable* pTab = FetchTable(rPos.Tab());
+    const ScTableSheet* pTab = FetchTable(rPos.Tab());
     if (!pTab)
         return false;
 
@@ -34,7 +34,7 @@ void ScDocument::DeleteBeforeCopyFromClip( sc::CopyFromClipContext& rCxt, const 
 
     for (SCTAB nTab = rCxt.getTabStart(); nTab <= rCxt.getTabEnd(); ++nTab)
     {
-        ScTable* pTab = FetchTable(nTab);
+        ScTableSheet* pTab = FetchTable(nTab);
         if (!pTab)
             continue;
 
@@ -64,7 +64,7 @@ bool ScDocument::CopyOneCellFromClip(
         // We don't handle merged source cell for this.
         return false;
 
-    ScTable* pSrcTab = pClipDoc->FetchTable(aSrcPos.Tab());
+    ScTableSheet* pSrcTab = pClipDoc->FetchTable(aSrcPos.Tab());
     if (!pSrcTab)
         return false;
 
@@ -202,7 +202,7 @@ bool ScDocument::CopyOneCellFromClip(
 
 void ScDocument::SetValues( const ScAddress& rPos, const std::vector<double>& rVals )
 {
-    ScTable* pTab = FetchTable(rPos.Tab());
+    ScTableSheet* pTab = FetchTable(rPos.Tab());
     if (!pTab)
         return;
 
@@ -211,7 +211,7 @@ void ScDocument::SetValues( const ScAddress& rPos, const std::vector<double>& rV
 
 void ScDocument::TransferCellValuesTo( const ScAddress& rTopPos, size_t nLen, sc::CellValues& rDest )
 {
-    ScTable* pTab = FetchTable(rTopPos.Tab());
+    ScTableSheet* pTab = FetchTable(rTopPos.Tab());
     if (!pTab)
         return;
 
@@ -220,7 +220,7 @@ void ScDocument::TransferCellValuesTo( const ScAddress& rTopPos, size_t nLen, sc
 
 void ScDocument::CopyCellValuesFrom( const ScAddress& rTopPos, const sc::CellValues& rSrc )
 {
-    ScTable* pTab = FetchTable(rTopPos.Tab());
+    ScTableSheet* pTab = FetchTable(rTopPos.Tab());
     if (!pTab)
         return;
 

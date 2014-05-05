@@ -420,7 +420,7 @@ ScMacroManager* ScDocument::GetMacroManager()
 void ScDocument::FillMatrix(
     ScMatrix& rMat, SCTAB nTab, SCCOL nCol1, SCROW nRow1, SCCOL nCol2, SCROW nRow2 ) const
 {
-    const ScTable* pTab = FetchTable(nTab);
+    const ScTableSheet* pTab = FetchTable(nTab);
     if (!pTab)
         return;
 
@@ -437,7 +437,7 @@ void ScDocument::FillMatrix(
 
 void ScDocument::SetFormulaResults( const ScAddress& rTopPos, const double* pResults, size_t nLen )
 {
-    ScTable* pTab = FetchTable(rTopPos.Tab());
+    ScTableSheet* pTab = FetchTable(rTopPos.Tab());
     if (!pTab)
         return;
 
@@ -447,7 +447,7 @@ void ScDocument::SetFormulaResults( const ScAddress& rTopPos, const double* pRes
 void ScDocument::SetFormulaResults(
     const ScAddress& rTopPos, const formula::FormulaTokenRef* pResults, size_t nLen )
 {
-    ScTable* pTab = FetchTable(rTopPos.Tab());
+    ScTableSheet* pTab = FetchTable(rTopPos.Tab());
     if (!pTab)
         return;
 
@@ -581,7 +581,7 @@ bool ScDocument::IdleCalcTextWidth()            // true = demnaechst wieder vers
     if (!ValidTab(aScope.Tab()) || aScope.Tab() >= static_cast<SCTAB>(maTabs.size()) || !maTabs[aScope.Tab()])
         aScope.setTab(0);
 
-    ScTable* pTab = maTabs[aScope.Tab()];
+    ScTableSheet* pTab = maTabs[aScope.Tab()];
     ScStyleSheet* pStyle = (ScStyleSheet*)aScope.getStylePool()->Find(pTab->aPageStyle, SFX_STYLE_FAMILY_PAGE);
     OSL_ENSURE( pStyle, "Missing StyleSheet :-/" );
 

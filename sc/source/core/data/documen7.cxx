@@ -152,12 +152,12 @@ void ScDocument::BroadcastRefMoved( const sc::RefMovedHint& rHint )
 
     for (SCTAB nTab = rSrcRange.aStart.Tab(); nTab <= rSrcRange.aEnd.Tab(); ++nTab)
     {
-        ScTable* pTab = FetchTable(nTab);
+        ScTableSheet* pTab = FetchTable(nTab);
         if (!pTab)
             continue;
 
         SCTAB nDestTab = nTab + rDelta.Tab();
-        ScTable* pDestTab = FetchTable(nDestTab);
+        ScTableSheet* pDestTab = FetchTable(nDestTab);
         if (!pDestTab)
             continue;
 
@@ -280,7 +280,7 @@ void ScDocument::EndListeningCell( const ScAddress& rAddress,
 void ScDocument::StartListeningCell(
     sc::StartListeningContext& rCxt, const ScAddress& rPos, SvtListener& rListener )
 {
-    ScTable* pTab = FetchTable(rPos.Tab());
+    ScTableSheet* pTab = FetchTable(rPos.Tab());
     if (!pTab)
         return;
 
@@ -290,7 +290,7 @@ void ScDocument::StartListeningCell(
 void ScDocument::EndListeningCell(
     sc::EndListeningContext& rCxt, const ScAddress& rPos, SvtListener& rListener )
 {
-    ScTable* pTab = FetchTable(rPos.Tab());
+    ScTableSheet* pTab = FetchTable(rPos.Tab());
     if (!pTab)
         return;
 

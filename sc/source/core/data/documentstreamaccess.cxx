@@ -37,7 +37,7 @@ DocumentStreamAccess::~DocumentStreamAccess()
 
 void DocumentStreamAccess::setNumericCell( const ScAddress& rPos, double fVal )
 {
-    ScTable* pTab = mpImpl->mrDoc.FetchTable(rPos.Tab());
+    ScTableSheet* pTab = mpImpl->mrDoc.FetchTable(rPos.Tab());
     if (!pTab)
         return;
 
@@ -58,7 +58,7 @@ void DocumentStreamAccess::setNumericCell( const ScAddress& rPos, double fVal )
 
 void DocumentStreamAccess::setStringCell( const ScAddress& rPos, const OUString& rStr )
 {
-    ScTable* pTab = mpImpl->mrDoc.FetchTable(rPos.Tab());
+    ScTableSheet* pTab = mpImpl->mrDoc.FetchTable(rPos.Tab());
     if (!pTab)
         return;
 
@@ -88,7 +88,7 @@ void DocumentStreamAccess::reset()
 
 void DocumentStreamAccess::shiftRangeUp( const ScRange& rRange )
 {
-    ScTable* pTab = mpImpl->mrDoc.FetchTable(rRange.aStart.Tab());
+    ScTableSheet* pTab = mpImpl->mrDoc.FetchTable(rRange.aStart.Tab());
     if (!pTab)
         return;
 
@@ -116,7 +116,7 @@ void DocumentStreamAccess::shiftRangeUp( const ScRange& rRange )
 
 void DocumentStreamAccess::shiftRangeDown( const ScRange& rRange )
 {
-    ScTable* pTab = mpImpl->mrDoc.FetchTable(rRange.aStart.Tab());
+    ScTableSheet* pTab = mpImpl->mrDoc.FetchTable(rRange.aStart.Tab());
     if (!pTab)
         return;
 

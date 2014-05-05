@@ -1641,7 +1641,7 @@ void ScDocument::GetEmbedded( ScRange& rRange ) const
 Rectangle ScDocument::GetEmbeddedRect() const                       // 1/100 mm
 {
     Rectangle aRect;
-    ScTable* pTable = NULL;
+    ScTableSheet* pTable = NULL;
     if ( aEmbedRange.aStart.Tab() < static_cast<SCTAB>(maTabs.size()) )
         pTable = maTabs[aEmbedRange.aStart.Tab()];
     else
@@ -1688,7 +1688,7 @@ void ScDocument::ResetEmbedded()
     while result is less than nStopTwips.
     @return true if advanced at least one row.
  */
-static bool lcl_AddTwipsWhile( long & rTwips, long nStopTwips, SCROW & rPosY, SCROW nEndRow, const ScTable * pTable, bool bHiddenAsZero = true )
+static bool lcl_AddTwipsWhile( long & rTwips, long nStopTwips, SCROW & rPosY, SCROW nEndRow, const ScTableSheet * pTable, bool bHiddenAsZero = true )
 {
     SCROW nRow = rPosY;
     bool bAdded = false;
@@ -1733,7 +1733,7 @@ static bool lcl_AddTwipsWhile( long & rTwips, long nStopTwips, SCROW & rPosY, SC
 
 ScRange ScDocument::GetRange( SCTAB nTab, const Rectangle& rMMRect, bool bHiddenAsZero ) const
 {
-    ScTable* pTable = NULL;
+    ScTableSheet* pTable = NULL;
     if (nTab < static_cast<SCTAB>(maTabs.size()))
         pTable = maTabs[nTab];
     else

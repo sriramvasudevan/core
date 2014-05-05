@@ -752,7 +752,7 @@ bool ScOutlineArray::DeleteSpace(SCCOLROW nStartPos, SCSIZE nSize)
 }
 
 bool ScOutlineArray::ManualAction(
-    SCCOLROW nStartPos, SCCOLROW nEndPos, bool bShow, const ScTable& rTable, bool bCol)
+    SCCOLROW nStartPos, SCCOLROW nEndPos, bool bShow, const ScTableSheet& rTable, bool bCol)
 {
     bool bModified = false;
     ScSubOutlineIterator aIter( this );
